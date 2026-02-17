@@ -11,11 +11,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectGuestsTo(fn () => route('login'));
-
-        // Aplica auth:usuario a todas las rutas web por defecto.
+        // Aplicar auth:usuario a todas las rutas web
         $middleware->appendToGroup('web', 'auth:usuario');
+
+        // Verificar en cada request que el usuario sigue activo
+        $middleware->appendToGroup('web', \App\Http\Middleware\VerificarUsuarioActivo::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        
-    })->create();
+        $exceptions->renderable(function (
+            \Illuminate\Session\TokenMismatchException $e,
+            \Illuminate\Http\Request $request
+        ) {
+            return redirect()->route('login')
+                ->withErrors(['user' => 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.']);
+        });
+    })
+    ->create();

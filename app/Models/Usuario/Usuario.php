@@ -44,31 +44,19 @@ class Usuario extends Authenticatable
 		);
 	}
 
-	/*
-     *  Roles
-     */
-    public function isSisAdmin(): bool
+	public function isSisAdmin(): bool
     {
-        return $this->roles()
-            ->where('nombre', 'SisAdmin')
-            ->wherePivot('bloqueado', 0)
-            ->exists();
+        return $this->hasRole('SisAdmin');
     }
 
-    public function hasRole(string $rol): bool
+    public function hasRole(string $role): bool
     {
-        return $this->roles()
-            ->where('nombre', $rol)
-            ->wherePivot('bloqueado', 0)
-            ->exists();
+        return $this->roles()->where('nombre', $role)->exists();
     }
 
-    public function hasAnyRole(string ...$roles): bool
+    public function hasAnyRole(array $roles): bool
     {
-        return $this->roles()
-            ->whereIn('nombre', $roles)
-            ->wherePivot('bloqueado', 0)
-            ->exists();
+        return $this->roles()->whereIn('nombre', $roles)->exists();
     }
 
 	/*

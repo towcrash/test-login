@@ -74,6 +74,22 @@ class UsuarioSeeder extends Seeder
 				'nombre'    => 'Test Colaborador',
 				'email'     => 'colaborador@EngineeringPR.cl',
 			],
+			[
+				'user'		=> 'Expirado',
+				'password'	=> 'password123',
+				'rut'		=> '12345678-9',
+				'nombre'    => 'Test Colaborador',
+				'email'     => 'exp@EngineeringPR.cl',
+				'vigencia'  => '2020-06-06 10:10:10'
+			],
+			[
+				'user'		=> 'Bloqueado',
+				'password'	=> 'password123',
+				'rut'		=> '98765432-1',
+				'nombre'    => 'Test Colaborador',
+				'email'     => 'exp@EngineeringPR.cl',
+				'bloqueado'  => 1,
+			],
 		];
 
 		foreach ($usuarios as $usuario) {
