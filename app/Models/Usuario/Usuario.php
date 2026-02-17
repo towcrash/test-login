@@ -2,6 +2,7 @@
 
 namespace App\Models\Usuario;
 
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use App\Models\Contratista\Colaborador;
 use App\Models\Recurso\Recurso;
 use App\Models\Recurso\Recurso_Usuario;
 
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
 	use HasFactory;
 
@@ -42,6 +43,33 @@ class Usuario extends Model
 			set: fn ($value) => bcrypt($value),
 		);
 	}
+
+	/*
+     *  Roles
+     */
+    public function isSisAdmin(): bool
+    {
+        return $this->roles()
+            ->where('nombre', 'SisAdmin')
+            ->wherePivot('bloqueado', 0)
+            ->exists();
+    }
+
+    public function hasRole(string $rol): bool
+    {
+        return $this->roles()
+            ->where('nombre', $rol)
+            ->wherePivot('bloqueado', 0)
+            ->exists();
+    }
+
+    public function hasAnyRole(string ...$roles): bool
+    {
+        return $this->roles()
+            ->whereIn('nombre', $roles)
+            ->wherePivot('bloqueado', 0)
+            ->exists();
+    }
 
 	/*
 	 * Relaciones

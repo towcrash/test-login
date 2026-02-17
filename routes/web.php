@@ -19,27 +19,25 @@ use App\Http\Controllers\TipoRecursoController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Autenticación — rutas públicas (sin auth)
 |--------------------------------------------------------------------------
 */
+Route::get('/',       [LoginController::class, 'showLoginForm'])->name('login')     ->withoutMiddleware('auth:usuario');
+Route::post('/login', [LoginController::class, 'login'])        ->name('login.post')->withoutMiddleware('auth:usuario');
+Route::post('/logout',[LoginController::class, 'logout'])       ->name('auth.logout');
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Autenticación
+| Dashboard
 |--------------------------------------------------------------------------
 */
-Route::get('/', [LoginController::class, 'showLoginForm'])  ->name('login');
-Route::post('/login', [LoginController::class, 'login'])    ->name('login.post');
-Route::post('/logout', [LoginController::class, 'logout'])  ->name('logout');
-
-    
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Usuarios y Roles
+| Usuarios y Roles
 |--------------------------------------------------------------------------
 */
 Route::prefix('usuario')->name('usuario.')->group(function () {
@@ -52,7 +50,7 @@ Route::prefix('rol')->name('rol.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Clientes
+| Clientes
 |--------------------------------------------------------------------------
 */
 Route::prefix('cliente')->name('cliente.')->group(function () {
@@ -62,7 +60,7 @@ Route::prefix('cliente')->name('cliente.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Contratistas
+| Contratistas
 |--------------------------------------------------------------------------
 */
 Route::prefix('contratista')->name('contratista.')->group(function () {
@@ -72,7 +70,7 @@ Route::prefix('contratista')->name('contratista.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Evaluaciones
+| Evaluaciones
 |--------------------------------------------------------------------------
 */
 Route::prefix('evaluacion')->name('evaluacion.')->group(function () {
@@ -83,19 +81,18 @@ Route::prefix('evaluacion')->name('evaluacion.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Aplicaciones
+| Aplicaciones
 |--------------------------------------------------------------------------
 */
 Route::prefix('aplicacion')->name('aplicacion.')->group(function () {
     Route::resource('aplicacion', AplicacionController::class)->only(['index', 'show', 'destroy']);
 });
 
-
 /*
 |--------------------------------------------------------------------------
-| Rutas de Recursos
+| Recursos
 |--------------------------------------------------------------------------
 */
 Route::prefix('recurso')->name('recurso.')->group(function () {
     Route::resource('recurso', RecursoController::class);
-}); 
+});

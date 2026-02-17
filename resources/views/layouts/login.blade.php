@@ -12,11 +12,11 @@
 
 
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-	<link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
-	<link rel="stylesheet" href="{{ asset('plugins/toastr/toastr.min.css') }}">
-	<link rel="stylesheet" href="{{ asset('dist/css/adminlte.min.css') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-rc3/dist/css/adminlte.min.css">
 
-	@vite(['resources/sass/app.scss', 'resources/js/app.js'])
+	@vite(['resources/js/app.js'])
 
 	<style>
 		.login-page:before {
@@ -34,16 +34,16 @@
 			background-size: cover;
 		}
 	</style>
-
 </head>
+
 <body class="hold-transition login-page">
 	@yield('content')
 	@stack('acciones')
 
-	<script src="{{ asset('plugins/jquery/jquery.min.js') }}"></script>
-	<script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-	<script src="{{ asset('plugins/toastr/toastr.min.js') }}"></script>
-	<script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-rc3/dist/js/adminlte.min.js" crossorigin="anonymous"></script>
 
 	@include('layouts.partials.acciones')
 </body>

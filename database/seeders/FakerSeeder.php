@@ -53,9 +53,6 @@ class FakerSeeder extends Seeder
         // Desactivar restricciones de llaves foráneas temporalmente
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         
-        // Limpiar todas las tablas en orden correcto
-        $this->truncateAllTables();
-        
         // Poblar tablas en orden (respetando dependencias)
         $this->command->info('Creando usuarios...');
         $this->seedUsuarios();
@@ -156,41 +153,6 @@ class FakerSeeder extends Seeder
     }
 
     /**
-     * Truncar todas las tablas
-     */
-    private function truncateAllTables()
-    {
-        $tables = ['Recurso_Usuario',
-            'Recurso',
-            'TipoRecurso',
-            'Documento',
-            'Disco',
-            'Aplicacion',
-            'Contratista_Evaluacion',
-            'Colaborador_Evaluacion',
-            'Evaluador_Evaluacion',
-            'Cliente_Evaluacion',
-            'Alternativa',
-            'Pregunta',
-            'Evaluacion',
-            'Colaborador',
-            'Evaluador',
-            'Contratista_Usuario',
-            'Cliente_Usuario',
-            'Cliente_Contratista',
-            'Contratista',
-            'Cliente',
-            'Usuario',
-            'Usuario_Rol',
-            'Rol',
-        ];
-
-        foreach ($tables as $table) {
-            DB::table($table)->truncate();
-        }
-    }
-
-    /**
      * Seed de usuarios con la nueva estructura
      */
     private function seedUsuarios()
@@ -202,7 +164,6 @@ class FakerSeeder extends Seeder
             'rut' => '11111111-1',
             'nombre' => 'Administrador del Sistema',
             'email' => 'admin@sistema.com',
-            'fecha' => now(),
             'bloqueado' => 0,
             'vigencia' => null,
         ]);
@@ -300,7 +261,6 @@ class FakerSeeder extends Seeder
         // Asignar rol de Administrador al usuario admin
         $admin = Usuario::find($this->usuarios[0]);
         $admin->roles()->attach($this->roles[0], [
-            'fecha' => now(),
             'bloqueado' => 0,
         ]);
 

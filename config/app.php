@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Facade;
+
 return [
 
     /*
@@ -123,4 +125,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'aliases' => Facade::defaultAliases()->merge([
+        'SessionService' => App\Services\Facades\SessionService::class,
+        'LogService'     => App\Services\Facades\LogService::class,
+    ])->toArray(),
 ];
