@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('Colaborador_Evaluacion', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('Colaborador_id');
+            $table->unsignedInteger('Evaluacion_id');
+            $table->string('token');
+            $table->timestamp('fecha')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->tinyInteger('bloqueado')->default(0);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('Colaborador_Evaluacion');
+    }
+};
