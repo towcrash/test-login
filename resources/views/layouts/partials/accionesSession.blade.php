@@ -1,5 +1,14 @@
 @php
-    if( $errors->any() ) SessionService::form();
+    if ($errors->any()) {
+        $esLogin = request()->routeIs('login') || request()->routeIs('login.post');
+        if ($esLogin) {
+            foreach ($errors->all() as $error) {
+                SessionService::error('Acceso denegado', $error);
+            }
+        } else {
+            SessionService::form();
+        }
+    }
 @endphp
 
 <script>

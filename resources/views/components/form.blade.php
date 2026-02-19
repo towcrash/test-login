@@ -5,6 +5,7 @@
 	'flagDelete' => null,
 	'columnas'   => 6,
 	'back'       => 'index',
+	'rutaBase',
 ])
 
 @php

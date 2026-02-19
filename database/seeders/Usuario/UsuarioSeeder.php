@@ -4,7 +4,6 @@ namespace Database\Seeders\Usuario;
 
 use App\Models\Usuario\Usuario;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class UsuarioSeeder extends Seeder
 {
@@ -22,8 +21,8 @@ class UsuarioSeeder extends Seeder
 				'user'		=> 'YNeiline',
 				'password'	=> 'password123',
 				'rut'		=> '22222222-2',
-				'nombre'    => 'Yarieth Neiline',
-				'email'     => 'yarieth.neiline@EngineeringPR.cl',
+				'nombre'    => 'Yariet Neiline',
+				'email'     => 'yariet.neiline@EngineeringPR.cl',
 			],
 			[
 				'user'		=> 'PReyes',
@@ -36,8 +35,8 @@ class UsuarioSeeder extends Seeder
 				'user'		=> 'FVega',
 				'password'	=> 'password123',
 				'rut'		=> '44444444-4',	
-				'nombre'    => 'Fernanda Vega',
-				'email'     => 'fernanda.vega@EngineeringPR.cl',
+				'nombre'    => 'Fernando Vega',
+				'email'     => 'fernando.vega@EngineeringPR.cl',
 			],
 			[
 				'user'		=> 'TAdmin',
@@ -78,7 +77,7 @@ class UsuarioSeeder extends Seeder
 				'user'		=> 'Expirado',
 				'password'	=> 'password123',
 				'rut'		=> '12345678-9',
-				'nombre'    => 'Test Colaborador',
+				'nombre'    => 'Test Expirado',
 				'email'     => 'exp@EngineeringPR.cl',
 				'vigencia'  => '2020-06-06 10:10:10'
 			],
@@ -86,8 +85,8 @@ class UsuarioSeeder extends Seeder
 				'user'		=> 'Bloqueado',
 				'password'	=> 'password123',
 				'rut'		=> '98765432-1',
-				'nombre'    => 'Test Colaborador',
-				'email'     => 'exp@EngineeringPR.cl',
+				'nombre'    => 'Test Bloqueado',
+				'email'     => 'bloq@EngineeringPR.cl',
 				'bloqueado'  => 1,
 			],
 		];

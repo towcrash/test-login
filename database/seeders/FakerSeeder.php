@@ -52,7 +52,7 @@ class FakerSeeder extends Seeder
         
         // Desactivar restricciones de llaves foráneas temporalmente
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
-        
+
         // Poblar tablas en orden (respetando dependencias)
         $this->command->info('Creando usuarios...');
         $this->seedUsuarios();
@@ -233,24 +233,21 @@ class FakerSeeder extends Seeder
      */
     private function seedRoles()
     {
-        $rolesData = [
-            ['nombre' => 'Administrador', 'descripcion' => 'Acceso total al sistema', 'bloqueado' => 1],
-            ['nombre' => 'Supervisor', 'descripcion' => 'Supervisión de evaluaciones y usuarios', 'bloqueado' => 0],
-            ['nombre' => 'Evaluador', 'descripcion' => 'Realiza evaluaciones', 'bloqueado' => 0],
-            ['nombre' => 'Cliente', 'descripcion' => 'Visualiza resultados de sus evaluaciones', 'bloqueado' => 0],
-            ['nombre' => 'Contratista', 'descripcion' => 'Gestiona colaboradores y evaluaciones', 'bloqueado' => 0],
-            ['nombre' => 'Colaborador', 'descripcion' => 'Participa en evaluaciones', 'bloqueado' => 0],
-        ];
-
-        foreach ($rolesData as $rolData) {
-            $rol = DB::table('Rol')->insertGetId([
-                'nombre' => $rolData['nombre'],
-                'descripcion' => $rolData['descripcion'],
-                'fecha' => now(),
-                'bloqueado' => $rolData['bloqueado'],
-            ]);
-            $this->roles[] = $rol;
+        // Obtener todos los roles existentes de la base de datos
+        $rolesExistentes = DB::table('Rol')->get();
+        
+        // Si no hay roles, mostrar advertencia
+        if ($rolesExistentes->isEmpty()) {
+            $this->command->warn('No se encontraron roles en la tabla Rol. Verifica que los roles hayan sido creados previamente.');
+            return;
         }
+        
+        // Añadir los IDs de los roles existentes al array
+        foreach ($rolesExistentes as $rol) {
+            $this->roles[] = $rol->id;
+        }
+        
+        $this->command->info('Se cargaron ' . count($this->roles) . ' roles existentes desde la base de datos.');
     }
 
     /**

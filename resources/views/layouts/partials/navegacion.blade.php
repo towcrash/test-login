@@ -1,7 +1,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
+    
     <a href="{{ route('dashboard') }}" class="brand-link" style="background-color:#fff; padding: 8px 15px;">
-        <img src="{{ Storage::disk('logos')->url('EngineeringPR.jpeg') }}"
+        <img src="{{ Storage::disk('logos')->url('logo_epr.png') }}"
              alt="Logo"
              style="width:100%; max-height:50px; object-fit:contain;">
     </a>
@@ -41,13 +41,6 @@
                                class="nav-link {{ request()->routeIs('usuario.usuario.*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Usuarios</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('rol.rol.index') }}"
-                               class="nav-link {{ request()->routeIs('rol.rol.*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Roles</p>
                             </a>
                         </li>
                     </ul>
@@ -155,7 +148,7 @@
                 @endanyrole
 
                 {{-- ── Recursos ─────────────────────────────────────────── --}}
-                @anyrole('SisAdmin', 'Evaluador')
+                @anyrole('SisAdmin', 'Evaluador', 'Cliente')
                 <li class="nav-header">RECURSOS</li>
                 <li class="nav-item">
                     <a href="{{ route('recurso.recurso.index') }}"

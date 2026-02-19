@@ -5,22 +5,11 @@
         <div class="card">
             <div class="card-body login-card-body">
                 <div class="login-logo">
-                    <img src="{{ Storage::disk('logos')->url('MDLL.jpeg') }}" alt="Cliente" style="width:30%">
+                    <img src="{{ Storage::disk('logos')->url('logo_epr.png') }}" alt="Cliente" style="width:30%">
                 </div>
                 <div class="login-logo" style="margin-bottom:1em">
-                    INDUCCIONES
+                    EVALUACIONES
                 </div>
-
-                @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <ul class="mb-0 pl-3">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
 
                 <form method="POST" action="{{ route('login.post') }}">
                     @csrf
@@ -31,7 +20,7 @@
                             id="user"
                             name="user"
                             type="text"
-                            class="form-control @error('user') is-invalid @enderror"
+                            class="form-control"
                             placeholder="Usuario"
                             value="{{ old('user') }}"
                             required
@@ -42,11 +31,6 @@
                                 <span class="fas fa-user"></span>
                             </div>
                         </div>
-                        @error('user')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
                     </div>
 
                     {{-- Contraseña --}}
@@ -55,7 +39,7 @@
                             id="password"
                             name="password"
                             type="password"
-                            class="form-control @error('password') is-invalid @enderror"
+                            class="form-control"
                             placeholder="Contraseña"
                             required
                         >
@@ -64,11 +48,6 @@
                                 <span class="fas fa-lock"></span>
                             </div>
                         </div>
-                        @error('password')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
                     </div>
 
                     {{-- Botón --}}
@@ -80,10 +59,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-
-            <div class="login-logo" style="margin: .5em 1.5em;">
-                <img src="{{ Storage::disk('logos')->url('EngineeringPR.jpeg') }}" alt="EngineeringPR" style="width:100%">
             </div>
         </div>
     </div>

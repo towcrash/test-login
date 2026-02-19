@@ -50,7 +50,7 @@ return [
         'logos' => [
             'driver' => 'local',
             'root' => storage_path('app/public/logos'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/logos',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -59,7 +59,7 @@ return [
         'recursos' => [
             'driver' => 'local',
             'root' => storage_path('app/public/recursos'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/recursos',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
