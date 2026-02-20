@@ -97,7 +97,15 @@ Route::prefix('cliente')->name('cliente.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('contratista')->name('contratista.')->group(function () {
-    Route::resource('contratista', ContratistaController::class);
+    Route::resource('contratista', ContratistaController::class)->parameter('contratista', 'contratista');
+
+    Route::post('contratista/{contratista}/evaluacion',
+        [ContratistaController::class, 'asignarEvaluacion'])
+        ->name('contratista.asignarEvaluacion');
+
+    Route::delete('contratista/{contratista}/evaluacion/{evaluacion}',
+        [ContratistaController::class, 'desasignarEvaluacion'])
+        ->name('contratista.desasignarEvaluacion');
 
     Route::post('contratista/{contratista}/colaborador',
         [ContratistaController::class, 'asignarColaborador'])

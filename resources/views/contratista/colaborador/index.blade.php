@@ -3,7 +3,7 @@
 @section('cabecera', 'Todos los Colaboradores')
 @section('accionGlobal')
     @sisadmin
-    <a href="{{ route('contratista.colaborador.create') }}" class="btn btn-success btn-sm">
+    <a href="{{ route($rutaBase . 'create') }}" class="btn btn-success btn-sm">
         <i class="fas fa-plus mr-1"></i> Nuevo Colaborador
     </a>
     @endsisadmin
@@ -29,13 +29,17 @@
             </td>
             <td class="text-center">
                 @sisadmin
-                <a href="{{ route('contratista.colaborador.edit', $col) }}" class="btn btn-xs btn-warning">
+                <a href="{{ route($rutaBase . 'edit', $col) }}" class="btn btn-xs btn-warning">
                     <i class="fas fa-edit"></i>
                 </a>
-                <form method="POST" action="{{ route('contratista.colaborador.destroy', $col) }}" class="d-inline"
-                      onsubmit="return confirm('¿Eliminar este colaborador?')">
-                    @csrf @method('DELETE')
-                    <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+                <form method="POST" action="{{ route($rutaBase . 'destroy', $col) }}" class="d-inline"
+                    onsubmit="return confirm('¿{{ $col->bloqueado ? 'Desbloquear' : 'Bloquear' }} este colaborador?')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-xs {{ $col->bloqueado ? 'btn-success' : 'btn-danger' }}" 
+                            title="{{ $col->bloqueado ? 'Desbloquear' : 'Bloquear' }}">
+                        <i class="fas {{ $col->bloqueado ? 'fa-check' : 'fa-ban' }}"></i>
+                    </button>
                 </form>
                 @endsisadmin
             </td>

@@ -3,7 +3,7 @@
 @section('cabecera', 'Editar Evaluador')
 @section('contenido')
 
-<x-form metodo="update" textoRecurso="evaluador" :objeto="$evaluador" flagDelete="true" columnas="6" :rutaBase="$rutaBase">
+<x-form metodo="update" textoRecurso="evaluador" :objeto="$evaluador" flagDelete="true" columnas="6">
     <div class="row form-group">
         <label class="col-sm-3 col-form-label">Cliente</label>
         <div class="col"><p class="form-control-plaintext">{{ $evaluador->cliente->nombre }}</p></div>

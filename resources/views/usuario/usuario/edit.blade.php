@@ -6,9 +6,9 @@
 
 @section('contenido')
 
-<x-form metodo="update" textoRecurso="usuario" :objeto="$usuario" flagDelete="true" columnas="7" :rutaBase="$rutaBase">
+<x-form metodo="update" textoRecurso="usuario" :objeto="$usuario" flagDelete="true" columnas="7">
 
-    <x-input parametro="user"   label="Usuario"   :objeto="$usuario" />
+    <x-input parametro="user"   label="Usuario"   :objeto="$usuario"  />
     <x-input parametro="password" label="Nueva contraseña" type="password" hint="Dejar vacío para no cambiar" />
     <x-input parametro="nombre" label="Nombre completo" :objeto="$usuario" />
     <x-input parametro="rut"    label="RUT" :objeto="$usuario" />

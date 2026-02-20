@@ -2,7 +2,7 @@
 @section('tituloPagina', 'Nuevo Cliente')
 @section('cabecera', 'Crear Cliente')
 @section('contenido')
-@php $rutaBase = 'cliente.cliente.'; @endphp
+
 <x-form metodo="store" textoRecurso="cliente" columnas="7">
     <x-input parametro="nombre" label="Nombre" />
     <x-input parametro="rut"    label="RUT" hint="76123456-7" />

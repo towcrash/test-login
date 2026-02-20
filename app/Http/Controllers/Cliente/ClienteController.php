@@ -26,25 +26,43 @@ class ClienteController extends Controller
     {
         $usuario = Auth::guard('usuario')->user();
 
-        $query = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
-            ->orderBy('id');
+        if ($usuario->isSisAdmin()) {
+            $clientes = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
+                ->orderBy('id')
+                ->get();
 
-        if (!$usuario->isSisAdmin()) {
-            $clienteIds = $usuario->clientes->pluck('id');
-            $query->whereIn('id', $clienteIds);
+            return view($this->rutaBase . 'index', compact('clientes'));
         }
 
-        $clientes = $query->get();
-        return view('cliente.cliente.index', compact('clientes'));
+        // Clientes donde el usuario está en Cliente_Usuario
+        $clientesComoUsuario = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
+            ->whereIn('id', $usuario->clientes->pluck('id'))
+            ->orderBy('id')
+            ->get();
+
+        // Clientes donde el usuario es evaluador
+        $clientesComoEvaluador = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
+            ->whereIn('id',
+                $usuario->evaluadores()->where('bloqueado', 0)->pluck('Cliente_id')
+            )
+            ->whereNotIn('id', $clientesComoUsuario->pluck('id'))
+            ->orderBy('id')
+            ->get();
+
+        return view($this->rutaBase . 'index', compact('clientesComoUsuario', 'clientesComoEvaluador'));
     }
 
     public function create()
     {
         $usuarios = Usuario::where('bloqueado', 0)
+            ->where(function ($q) {
+                $q->whereNull('vigencia')
+                ->orWhere('vigencia', '>', now());
+            })
             ->orderBy('id')
             ->pluck('nombre', 'id');
 
-        return view('cliente.cliente.create', compact('usuarios'));
+        return view($this->rutaBase . 'create', compact('usuarios'));
     }
 
     public function store(Request $request)
@@ -76,6 +94,10 @@ class ClienteController extends Controller
         ]);
 
         $usuariosDisponibles = Usuario::where('bloqueado', 0)
+            ->where(function ($q) {
+                $q->whereNull('vigencia')
+                ->orWhere('vigencia', '>', now());
+            })
             ->whereNotIn('id', $cliente->usuarios->pluck('id'))
             ->orderBy('nombre')
             ->pluck('nombre', 'id');
@@ -87,6 +109,11 @@ class ClienteController extends Controller
 
         $evaluadoresActuales = $cliente->evaluadores->pluck('Usuario_id');
         $usuariosParaEvaluador = Usuario::where('bloqueado', 0)
+            ->where(function ($q) {
+                $q->whereNull('vigencia')
+                ->orWhere('vigencia', '>', now());
+            })
+            ->whereHas('roles', fn($q) => $q->where('nombre', 'Evaluador'))
             ->whereNotIn('id', $evaluadoresActuales)
             ->orderBy('nombre')
             ->pluck('nombre', 'id');
@@ -96,7 +123,7 @@ class ClienteController extends Controller
             ->orderBy('nombre')
             ->pluck('nombre', 'id');
 
-        return view('cliente.cliente.show', compact(
+        return view($this->rutaBase .  'show', compact(
             'cliente',
             'contratistasDisponibles',
             'usuariosParaEvaluador',
@@ -107,37 +134,26 @@ class ClienteController extends Controller
 
     public function edit(Cliente $cliente)
     {
-        return view('cliente.cliente.edit', compact('cliente'));
+        return view($this->rutaBase .  'edit', compact('cliente'));
     }
 
     public function update(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'nombre'    => 'required|string',
-            'rut'       => 'required|string|unique:Cliente,rut,' . $cliente->id,
+            'nombre'    => 'nullable|string',
+            'rut'       => 'nullable|string|unique:Cliente,rut,' . $cliente->id,
             'bloqueado' => 'nullable|boolean',
         ]);
 
-        $cliente->update([
-            'nombre'    => $request->nombre,
-            'rut'       => $request->rut,
-            'bloqueado' => $request->boolean('bloqueado') ? 1 : 0,
-        ]);
+        $data = array_filter([
+            'nombre'    => $request->filled('nombre')    ? $request->nombre : null,
+            'rut'       => $request->filled('rut')       ? $request->rut    : null,
+            'bloqueado' => $request->has('bloqueado')    ? ($request->boolean('bloqueado') ? 1 : 0) : null,
+        ], fn($v) => $v !== null);
+
+        $cliente->update($data);
 
         SessionService::success('Cliente', 'Cliente actualizado correctamente.');
-        return redirect()->route($this->rutaBase . 'index');
-    }
-
-    public function destroy(Cliente $cliente)
-    {
-        if ($cliente->contratistas()->count() > 0 || $cliente->evaluadores()->count() > 0) {
-            SessionService::delete('Cliente');
-            return redirect()->route($this->rutaBase . 'index');
-        }
-
-        $cliente->usuarios()->detach();
-        $cliente->delete();
-        SessionService::success('Cliente', 'Cliente eliminado correctamente.');
         return redirect()->route($this->rutaBase . 'index');
     }
 

@@ -100,19 +100,19 @@ class Usuario_RolSeeder extends Seeder
 			],
             [
                 'Usuario_id'     => 6,
-                'Rol_id'         => 2,
+                'Rol_id'         => 4,
             ],
 			[
 				'Usuario_id'     => 7,
-                'Rol_id'         => 3,
+                'Rol_id'         => 2,
 			],
 			[
 				'Usuario_id'     => 8,
-                'Rol_id'         => 4,
+                'Rol_id'         => 5,
 			],
 			[
 				'Usuario_id'     => 9,
-                'Rol_id'         => 5,
+                'Rol_id'         => 3,
 			],
 		];
 

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Pagination\Paginator;
 use App\Services\Services\SessionService as SessionServiceImpl;
 use App\Services\Services\LogService as LogServiceImpl;
 
@@ -22,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Paginator::useBootstrapFour();
+        
         Blade::directive('sisadmin', function () {
             return "<?php if(Auth::guard('usuario')->check() && Auth::guard('usuario')->user()->isSisAdmin()): ?>";
         });

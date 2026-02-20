@@ -21,13 +21,13 @@ class UsuarioController extends Controller
     public function index()
     {
         $usuarios = Usuario::with('roles')->orderBy('id')->get();
-        return view('usuario.usuario.index', compact('usuarios'));
+        return view($this->rutaBase . 'index', compact('usuarios'));
     }
 
     public function create()
     {
         $roles = Rol::where('bloqueado', 0)->orderBy('id')->pluck('nombre', 'id');
-        return view('usuario.usuario.create', compact('roles'));
+        return view($this->rutaBase . 'create', compact('roles'));
     }
 
     public function store(Request $request)
@@ -64,7 +64,7 @@ class UsuarioController extends Controller
     public function show(Usuario $usuario)
     {
         $usuario->load(['roles', 'clientes', 'contratistas', 'evaluadores.cliente', 'colaboradores.contratista']);
-        return view('usuario.usuario.show', compact('usuario'));
+        return view($this->rutaBase .  'show', compact('usuario'));
     }
 
     public function edit(Usuario $usuario)
@@ -72,37 +72,49 @@ class UsuarioController extends Controller
         $usuario->load('roles');
         $roles         = Rol::where('bloqueado', 0)->orderBy('nombre')->pluck('nombre', 'id');
         $rolesAsignados = $usuario->roles->pluck('id')->toArray();
-        return view('usuario.usuario.edit', compact('usuario', 'roles', 'rolesAsignados'));
+        return view($this->rutaBase . 'edit', compact('usuario', 'roles', 'rolesAsignados'));
     }
 
     public function update(Request $request, Usuario $usuario)
     {
         $request->validate([
-            'user'     => 'required|string|unique:Usuario,user,' . $usuario->id,
-            'nombre'   => 'required|string',
-            'rut'      => 'nullable|string|unique:Usuario,rut,' . $usuario->id,
-            'email'    => 'nullable|email|unique:Usuario,email,' . $usuario->id,
-            'vigencia' => 'nullable|date',
-            'bloqueado'=> 'nullable|boolean',
-            'roles'    => 'nullable|array',
-            'roles.*'  => 'exists:Rol,id',
+            'user'      => 'nullable|string|unique:Usuario,user,' . $usuario->id,
+            'nombre'    => 'nullable|string',
+            'rut'       => 'nullable|string|unique:Usuario,rut,' . $usuario->id,
+            'email'     => 'nullable|email|unique:Usuario,email,' . $usuario->id,
+            'vigencia'  => 'nullable|date',
+            'bloqueado' => 'nullable|boolean',
+            'roles'     => 'nullable|array',
+            'roles.*'   => 'exists:Rol,id',
         ]);
 
-        $data = $request->only('user', 'nombre', 'rut', 'email', 'vigencia');
-        $data['bloqueado'] = $request->boolean('bloqueado') ? 1 : 0;
+        $data = array_filter([
+            'user'      => $request->filled('user')   ? $request->user   : null,
+            'nombre'    => $request->filled('nombre') ? $request->nombre : null,
+            'rut'       => $request->filled('rut')    ? $request->rut    : null,
+            'email'     => $request->filled('email')  ? $request->email  : null,
+            'vigencia'  => $request->has('vigencia')  ? $request->vigencia : null,
+            'bloqueado' => $request->has('bloqueado') ? ($request->boolean('bloqueado') ? 1 : 0) : null,
+        ], fn($v) => $v !== null);
 
         if ($request->filled('password')) {
             $request->validate(['password' => 'min:6']);
             $data['password'] = $request->password;
         }
 
+        $estabaBloqueado = $usuario->bloqueado;
         $usuario->update($data);
 
-        // Sincronizar roles
-        $roles = collect($request->roles ?? [])->mapWithKeys(fn($id) => [
-            $id => ['fecha' => now(), 'bloqueado' => 0]
-        ])->all();
-        $usuario->roles()->sync($roles);
+        if (!$estabaBloqueado && $usuario->bloqueado) {
+            $this->bloquearRelaciones($usuario);
+        }
+
+        if ($request->has('roles')) {
+            $roles = collect($request->roles ?? [])->mapWithKeys(fn($id) => [
+                $id => ['fecha' => now(), 'bloqueado' => 0]
+            ])->all();
+            $usuario->roles()->sync($roles);
+        }
 
         SessionService::success('Usuario', 'Usuario actualizado correctamente.');
         return redirect()->route($this->rutaBase . 'index');
@@ -110,15 +122,67 @@ class UsuarioController extends Controller
 
     public function destroy(Usuario $usuario)
     {
-        if (Auth::guard('usuario')->id() === $usuario->id) {
-            SessionService::error('Usuario', 'No puedes eliminar tu propia cuenta.');
-            return redirect()->route($this->rutaBase . 'index');
+        $nuevoEstado = $usuario->bloqueado ? 0 : 1;
+        $mensaje = $nuevoEstado ? 'bloqueado' : 'desbloqueado';
+        
+        $usuario->update([
+            'bloqueado' => $nuevoEstado
+        ]);
+        
+        if ($usuario->bloqueado == 1)
+        {
+            $this->bloquearRelaciones($usuario);
         }
 
-        $usuario->roles()->detach();
-        $usuario->delete();
-
-        SessionService::success('Usuario', 'Usuario eliminado correctamente.');
+        SessionService::success('Usuario', "Usuario {$mensaje} correctamente.");
         return redirect()->route($this->rutaBase . 'index');
+    }
+
+    
+    private function bloquearRelaciones(Usuario $usuario): void
+    {
+        \DB::table('Cliente_Usuario')
+            ->where('Usuario_id', $usuario->id)
+            ->update(['bloqueado' => 1]);
+
+        \DB::table('Contratista_Usuario')
+            ->where('Usuario_id', $usuario->id)
+            ->update(['bloqueado' => 1]);
+
+        \DB::table('Usuario_Rol')
+            ->where('Usuario_id', $usuario->id)
+            ->update(['bloqueado' => 1]);
+
+        \DB::table('Evaluador')
+            ->where('Usuario_id', $usuario->id)
+            ->update(['bloqueado' => 1]);
+
+        $evaluadorIds = \DB::table('Evaluador')
+            ->where('Usuario_id', $usuario->id)
+            ->pluck('id');
+
+        if ($evaluadorIds->isNotEmpty()) {
+            \DB::table('Evaluador_Evaluacion')
+                ->whereIn('Evaluador_id', $evaluadorIds)
+                ->update(['bloqueado' => 1]);
+        }
+
+        \DB::table('Colaborador')
+            ->where('Usuario_id', $usuario->id)
+            ->update(['bloqueado' => 1]);
+
+        $colaboradorIds = \DB::table('Colaborador')
+            ->where('Usuario_id', $usuario->id)
+            ->pluck('id');
+
+        if ($colaboradorIds->isNotEmpty()) {
+            \DB::table('Colaborador_Evaluacion')
+                ->whereIn('Colaborador_id', $colaboradorIds)
+                ->update(['bloqueado' => 1]);
+        }
+
+        \DB::table('Recurso_Usuario')
+            ->where('Usuario_id', $usuario->id)
+            ->update(['bloqueado' => 1]);
     }
 }

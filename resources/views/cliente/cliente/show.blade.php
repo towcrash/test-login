@@ -5,11 +5,11 @@
 
 @section('accionGlobal')
     @sisadmin
-    <a href="{{ route('cliente.cliente.edit', $cliente) }}" class="btn btn-warning btn-sm">
+    <a href="{{ route($rutaBase . 'edit', $cliente) }}" class="btn btn-warning btn-sm">
         <i class="fas fa-edit mr-1"></i> Editar
     </a>
     @endsisadmin
-    <a href="{{ route('cliente.cliente.index') }}" class="btn btn-secondary btn-sm">
+    <a href="{{ route($rutaBase . 'index') }}" class="btn btn-secondary btn-sm">
         <i class="fas fa-arrow-left mr-1"></i> Volver
     </a>
 @endsection
@@ -90,7 +90,7 @@
 
         {{-- Asignar Usuarios --}}
         <x-card titulo="Asignar Usuarios">
-            <form method="POST" action="{{ route('cliente.cliente.asignarUsuario', $cliente) }}">
+            <form method="POST" action="{{ route($rutaBase . 'asignarUsuario', $cliente) }}">
                 @csrf
                 <p class="text-muted small mb-2">
                     <i class="fas fa-info-circle"></i>
@@ -123,7 +123,7 @@
                     </div>
                     @sisadmin
                     <form method="POST"
-                        action="{{ route('cliente.cliente.desasignarUsuario', [$cliente, $usuario]) }}"
+                        action="{{ route($rutaBase . 'desasignarUsuario', [$cliente, $usuario]) }}"
                         onsubmit="return confirm('¿Quitar a {{ $usuario->nombre }} de este cliente?')">
                         @csrf @method('DELETE')
                         <button class="btn btn-xs btn-danger" title="Quitar"><i class="fas fa-unlink"></i></button>
@@ -137,7 +137,7 @@
         @sisadmin
         {{-- Asignar Contratistas --}}
         <x-card titulo="Asignar Contratistas">
-            <form method="POST" action="{{ route('cliente.cliente.asignarContratista', $cliente) }}">
+            <form method="POST" action="{{ route($rutaBase . 'asignarContratista', $cliente) }}">
                 @csrf
                 <div class="form-group mb-1">
                     <select name="Contratista_id[]" id="selectContratistasMultiples"
@@ -163,12 +163,14 @@
                     <small class="text-muted">{{ $contratista->rut }}</small><br>
                     <small>Colaboradores: <span class="badge badge-secondary">{{ $contratista->colaboradores->count() }}</span></small>
                 </div>
-                <form method="POST"
-                      action="{{ route('cliente.cliente.desasignarContratista', [$cliente, $contratista]) }}"
-                      onsubmit="return confirm('¿Desasociar {{ $contratista->nombre }}?')">
-                    @csrf @method('DELETE')
-                    <button class="btn btn-xs btn-danger" title="Quitar"><i class="fas fa-unlink"></i></button>
-                </form>
+                @sisadmin
+                    <form method="POST"
+                        action="{{ route($rutaBase . 'desasignarContratista', [$cliente, $contratista]) }}"
+                        onsubmit="return confirm('¿Desasociar {{ $contratista->nombre }}?')">
+                        @csrf @method('DELETE')
+                        <button class="btn btn-xs btn-danger" title="Quitar"><i class="fas fa-unlink"></i></button>
+                    </form>
+                @endsisadmin
             </div>
             @empty
             <p class="text-muted mb-0">Sin contratistas asociados.</p>
@@ -176,13 +178,13 @@
         </x-card>
     </div>
 
-    {{-- ── Columna central: Usuarios + Evaluaciones ── --}}
+    {{-- ── Columna central: Evaluaciones ── --}}
     <div class="col-md-4">
         
         {{-- Asignar Evaluaciones --}}
         @sisadmin
             <x-card titulo="Asignar Evaluaciones">
-                <form method="POST" action="{{ route('cliente.cliente.asignarEvaluacion', $cliente) }}">
+                <form method="POST" action="{{ route($rutaBase . 'asignarEvaluacion', $cliente) }}">
                     @csrf
                     <div class="form-group mb-1">
                         <select name="Evaluacion_id[]" id="selectEvaluacionesMultiples"
@@ -204,15 +206,13 @@
             <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                 <div>
                     <strong>{{ $evaluacion->nombre }}</strong><br>
-                    <small class="text-muted">
-                        {{ $evaluacion->fecha_inicio ?? '—' }}
-                        @if ($evaluacion->fecha_fin) → {{ $evaluacion->fecha_fin }} @endif
-                    </small><br>
-                    @if ($evaluacion->bloqueado)
-                        <span class="badge badge-danger">Bloqueada</span>
-                    @else
-                        <span class="badge badge-success">Activa</span>
-                    @endif
+                    @sisadmin
+                        @if ($evaluacion->bloqueado)
+                            <span class="badge badge-danger">Bloqueada</span>
+                        @else
+                            <span class="badge badge-success">Activa</span>
+                        @endif
+                    @endsisadmin
                 </div>
                 @sisadmin
                 <div class="d-flex flex-column gap-1">
@@ -221,7 +221,7 @@
                         <i class="fas fa-edit"></i>
                     </a>
                     <form method="POST"
-                          action="{{ route('cliente.cliente.desasignarEvaluacion', [$cliente, $evaluacion]) }}"
+                          action="{{ route($rutaBase . 'desasignarEvaluacion', [$cliente, $evaluacion]) }}"
                           onsubmit="return confirm('¿Desasociar {{ $evaluacion->nombre }} de este cliente?')">
                         @csrf @method('DELETE')
                         <button class="btn btn-xs btn-danger" title="Quitar"><i class="fas fa-unlink"></i></button>
@@ -241,7 +241,7 @@
         {{-- Asignar Evaluadores --}}
         @sisadmin
             <x-card titulo="Asignar Evaluadores">
-                <form method="POST" action="{{ route('cliente.cliente.asignarEvaluador', $cliente) }}">
+                <form method="POST" action="{{ route($rutaBase . 'asignarEvaluador', $cliente) }}">
                     @csrf
                     <div class="form-group mb-1">
                         <select name="Usuario_id[]" id="selectEvaluadoresMultiples"
@@ -267,7 +267,7 @@
                 </div>
                 @sisadmin
                 <form method="POST"
-                      action="{{ route('cliente.cliente.desasignarEvaluador', [$cliente, $evaluador]) }}"
+                      action="{{ route($rutaBase . 'desasignarEvaluador', [$cliente, $evaluador]) }}"
                       onsubmit="return confirm('¿Quitar evaluador?')">
                     @csrf @method('DELETE')
                     <button class="btn btn-xs btn-danger" title="Quitar"><i class="fas fa-unlink"></i></button>
@@ -301,7 +301,7 @@
                     </small>
                     @sisadmin
                     <form method="POST"
-                          action="{{ route('cliente.cliente.desasignarEvaluadorEvaluacion', [$cliente, $evaluacion, $ev]) }}"
+                          action="{{ route($rutaBase . 'desasignarEvaluadorEvaluacion', [$cliente, $evaluacion, $ev]) }}"
                           onsubmit="return confirm('¿Quitar a {{ $ev->usuario->nombre }} de esta evaluación?')">
                         @csrf @method('DELETE')
                         <button class="btn btn-xs btn-outline-danger" title="Quitar"><i class="fas fa-times"></i></button>
@@ -312,7 +312,7 @@
                 <small class="text-muted pl-2">Sin evaluador asignado.</small>
                 @endforelse
 
-                {{-- Asignar evaluador a esta evaluación (solo sisadmin) --}}
+                {{-- Asignar evaluador a esta evaluación --}}
                 @sisadmin
                 @php
                     $evAsignadosIds = $evaluacion->evaluadores->pluck('id');
@@ -320,7 +320,7 @@
                 @endphp
                 @if ($evDisponibles->count())
                 <form method="POST"
-                      action="{{ route('cliente.cliente.asignarEvaluadorEvaluacion', [$cliente, $evaluacion]) }}"
+                      action="{{ route($rutaBase . 'asignarEvaluadorEvaluacion', [$cliente, $evaluacion]) }}"
                       class="d-flex align-items-center mt-1 pl-2">
                     @csrf
                     <select name="Evaluador_id" class="form-control form-control-sm mr-1" required>

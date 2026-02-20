@@ -5,11 +5,11 @@
 
 @section('accionGlobal')
     @sisadmin
-    <a href="{{ route('usuario.usuario.edit', $usuario) }}" class="btn btn-warning btn-sm">
+    <a href="{{ route($rutaBase . 'edit', $usuario) }}" class="btn btn-warning btn-sm">
         <i class="fas fa-edit mr-1"></i> Editar
     </a>
     @endsisadmin
-    <a href="{{ route('usuario.usuario.index') }}" class="btn btn-secondary btn-sm">
+    <a href="{{ route($rutaBase . 'index') }}" class="btn btn-secondary btn-sm">
         <i class="fas fa-arrow-left mr-1"></i> Volver
     </a>
 @endsection

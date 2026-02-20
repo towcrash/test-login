@@ -25,14 +25,14 @@ class ColaboradorController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('contratista.colaborador.index', compact('colaboradores'));
+        return view($this->rutaBase . 'index', compact('colaboradores'));
     }
 
     public function create()
     {
         $contratistas = Contratista::where('bloqueado', 0)->orderBy('id')->pluck('nombre', 'id');
         $usuarios     = Usuario::where('bloqueado', 0)->orderBy('id')->pluck('nombre', 'id');
-        return view('contratista.colaborador.create', compact('contratistas', 'usuarios'));
+        return view($this->rutaBase . 'create', compact('contratistas', 'usuarios'));
     }
 
     public function store(Request $request)
@@ -65,14 +65,14 @@ class ColaboradorController extends Controller
     public function show(Colaborador $colaborador)
     {
         $colaborador->load(['contratista', 'usuario', 'evaluaciones']);
-        return view('contratista.colaborador.show', compact('colaborador'));
+        return view($this->rutaBase . 'show', compact('colaborador'));
     }
 
     public function edit(Colaborador $colaborador)
     {
         $contratistas = Contratista::where('bloqueado', 0)->orderBy('id')->pluck('nombre', 'id');
         $usuarios     = Usuario::where('bloqueado', 0)->orderBy('id')->pluck('nombre', 'id');
-        return view('contratista.colaborador.edit', compact('colaborador', 'contratistas', 'usuarios'));
+        return view($this->rutaBase . 'edit', compact('colaborador', 'contratistas', 'usuarios'));
     }
 
     public function update(Request $request, Colaborador $colaborador)
@@ -91,8 +91,14 @@ class ColaboradorController extends Controller
 
     public function destroy(Colaborador $colaborador)
     {
-        $colaborador->delete();
-        SessionService::success('Colaborador', 'Colaborador eliminado correctamente.');
+        $nuevoEstado = $colaborador->bloqueado ? 0 : 1;
+        $mensaje = $nuevoEstado ? 'bloqueado' : 'desbloqueado';
+        
+        $colaborador->update([
+            'bloqueado' => $nuevoEstado
+        ]);
+        
+        SessionService::success('Colaborador', "Colaborador {$mensaje} correctamente.");
         return redirect()->route($this->rutaBase . 'index');
     }
 }

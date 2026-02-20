@@ -5,7 +5,7 @@
 
 @section('accionGlobal')
     @sisadmin
-    <a href="{{ route('usuario.usuario.create') }}" class="btn btn-success btn-sm">
+    <a href="{{ route($rutaBase . 'create') }}" class="btn btn-success btn-sm">
         <i class="fas fa-plus mr-1"></i> Nuevo Usuario
     </a>
     @endsisadmin
@@ -59,18 +59,20 @@
                 @endif
             </td>
             <td class="text-center">
-                <a href="{{ route('usuario.usuario.show', $usuario) }}" class="btn btn-xs btn-info" title="Ver">
+                <a href="{{ route($rutaBase . 'show', $usuario) }}" class="btn btn-xs btn-info" title="Ver">
                     <i class="fas fa-eye"></i>
                 </a>
                 @sisadmin
-                <a href="{{ route('usuario.usuario.edit', $usuario) }}" class="btn btn-xs btn-warning" title="Editar">
+                <a href="{{ route($rutaBase . 'edit', $usuario) }}" class="btn btn-xs btn-warning" title="Editar">
                     <i class="fas fa-edit"></i>
                 </a>
-                <form method="POST" action="{{ route('usuario.usuario.destroy', $usuario) }}" class="d-inline"
-                      onsubmit="return confirm('¿Eliminar usuario {{ $usuario->user }}?')">
-                    @csrf @method('DELETE')
-                    <button class="btn btn-xs btn-danger" title="Eliminar">
-                        <i class="fas fa-trash"></i>
+                <form method="POST" action="{{ route($rutaBase . 'destroy', $usuario) }}" class="d-inline"
+                    onsubmit="return confirm('¿{{ $usuario->bloqueado ? 'Desbloquear' : 'Bloquear' }} este usuario?')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-xs {{ $usuario->bloqueado ? 'btn-success' : 'btn-danger' }}" 
+                            title="{{ $usuario->bloqueado ? 'Desbloquear' : 'Bloquear' }}">
+                        <i class="fas {{ $usuario->bloqueado ? 'fa-check' : 'fa-ban' }}"></i>
                     </button>
                 </form>
                 @endsisadmin

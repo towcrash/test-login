@@ -4,7 +4,7 @@
 @section('cabecera2', $cliente->nombre)
 @section('contenido')
 
-<x-form metodo="update" textoRecurso="cliente" :objeto="$cliente" flagDelete="true" columnas="6" :rutaBase="$rutaBase">
+<x-form metodo="update" textoRecurso="cliente" :objeto="$cliente" flagDelete="true" columnas="6">
     <x-input parametro="nombre" label="Nombre" :objeto="$cliente" />
     <x-input parametro="rut"    label="RUT"    :objeto="$cliente" />
     <div class="row form-group">

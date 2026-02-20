@@ -5,7 +5,6 @@
 	'flagDelete' => null,
 	'columnas'   => 6,
 	'back'       => 'index',
-	'rutaBase',
 ])
 
 @php
@@ -51,11 +50,6 @@
 					<div class="col">
 						<button id="btnAccion" class="btn btn-block btn-success">{{ $textoMetodo }}</button>
 					</div>
-					@if ($flagDelete)
-						<div class="col">
-							<button id="btnEliminar" class="btn btn-block btn-danger">Eliminar</button>
-						</div>
-					@endif
 					<div class="col">
 						<button id="btnCancelar" class="btn btn-block btn-primary">Cancelar</button>
 					</div>

@@ -63,6 +63,7 @@
                                 <p>Clientes</p>
                             </a>
                         </li>
+                        @sisadmin
                         <li class="nav-item">
                             <a href="{{ route('cliente.evaluador.index') }}"
                                class="nav-link {{ request()->routeIs('cliente.evaluador.*') ? 'active' : '' }}">
@@ -70,12 +71,13 @@
                                 <p>Evaluadores</p>
                             </a>
                         </li>
+                        @endsisadmin
                     </ul>
                 </li>
                 @endanyrole
 
                 {{-- ── Contratistas ─────────────────────────────────────── --}}
-                @anyrole('SisAdmin', 'Contratista', 'Evaluador')
+                @anyrole('SisAdmin', 'Contratista', 'Evaluador', 'Cliente')
                 <li class="nav-header">CONTRATISTAS</li>
                 <li class="nav-item {{ str_starts_with($current, 'contratista.') ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
@@ -102,7 +104,6 @@
                 @endanyrole
 
                 {{-- ── Evaluaciones ─────────────────────────────────────── --}}
-                @anyrole('SisAdmin', 'Evaluador', 'Cliente')
                 <li class="nav-header">EVALUACIONES</li>
                 <li class="nav-item {{ str_starts_with($current, 'evaluacion.') ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
@@ -133,7 +134,6 @@
                         </li>
                     </ul>
                 </li>
-                @endanyrole
 
                 {{-- ── Aplicaciones ─────────────────────────────────────── --}}
                 @anyrole('SisAdmin', 'Evaluador', 'Colaborador')
@@ -148,7 +148,7 @@
                 @endanyrole
 
                 {{-- ── Recursos ─────────────────────────────────────────── --}}
-                @anyrole('SisAdmin', 'Evaluador', 'Cliente')
+                @anyrole('SisAdmin', 'Evaluador', 'Colaborador')
                 <li class="nav-header">RECURSOS</li>
                 <li class="nav-item">
                     <a href="{{ route('recurso.recurso.index') }}"
