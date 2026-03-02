@@ -8,7 +8,7 @@
                     <img src="{{ Storage::disk('logos')->url('logo_epr.png') }}" alt="Cliente" style="width:30%">
                 </div>
                 <div class="login-logo" style="margin-bottom:1em">
-                    EVALUACIONES
+                    COMPLIANCE
                 </div>
 
                 <form method="POST" action="{{ route('login.post') }}">

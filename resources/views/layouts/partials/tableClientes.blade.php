@@ -1,5 +1,5 @@
 <table class="table table-bordered table-hover table-sm">
-    <thead class="thead-dark">
+    <thead class="thead-light">
         <tr>
             @sisadmin
                 <th>#</th>
@@ -12,7 +12,9 @@
             @if ($mostrarEstado)
                 <th>Estado</th>
             @endif
+            @sisadmin
             <th></th>
+            @endsisadmin
         </tr>
     </thead>
     <tbody>
@@ -21,7 +23,12 @@
             @sisadmin
                 <td>{{ $cliente->id }}</td>
             @endsisadmin
-            <td><strong>{{ $cliente->nombre }}</strong></td>
+            <td>
+                <strong>{{ $cliente->nombre }}</strong>
+                <a href="{{ route($rutaBase . 'show', $cliente) }}" class="btn btn-xs btn-warning" title="Ver">
+                    <i class="fas fa-eye"></i>
+                </a>
+            </td>
             <td>{{ $cliente->rut }}</td>
             <td>
                 <span class="badge badge-primary">
@@ -50,12 +57,9 @@
                     @endif
                 </td>
             @endif
+            @sisadmin
             <td class="text-center">
-                <a href="{{ route($rutaBase . 'show', $cliente) }}" class="btn btn-xs btn-info" title="Ver">
-                    <i class="fas fa-eye"></i>
-                </a>
-                @sisadmin
-                <a href="{{ route($rutaBase . 'edit', $cliente) }}" class="btn btn-xs btn-warning" title="Editar">
+                <a href="{{ route($rutaBase . 'edit', $cliente) }}" class="btn btn-xs btn-info" title="Editar">
                     <i class="fas fa-edit"></i>
                 </a>
                 <form method="POST" action="{{ route($rutaBase . 'destroy', $cliente) }}" class="d-inline"
@@ -67,8 +71,8 @@
                         <i class="fas {{ $cliente->bloqueado ? 'fa-check' : 'fa-ban' }}"></i>
                     </button>
                 </form>
-                @endsisadmin
             </td>
+            @endsisadmin
         </tr>
         @empty
         <tr>

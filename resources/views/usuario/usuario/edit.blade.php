@@ -8,17 +8,17 @@
 
 <x-form metodo="update" textoRecurso="usuario" :objeto="$usuario" flagDelete="true" columnas="7">
 
-    <x-input parametro="user"   label="Usuario"   :objeto="$usuario"  />
-    <x-input parametro="password" label="Nueva contraseña" type="password" hint="Dejar vacío para no cambiar" />
-    <x-input parametro="nombre" label="Nombre completo" :objeto="$usuario" />
-    <x-input parametro="rut"    label="RUT" :objeto="$usuario" />
-    <x-input parametro="email"  label="Email" type="email" :objeto="$usuario" />
-    <x-dateTime parametro="vigencia" label="Vigencia" :objeto="$usuario" hint="Dejar vacío = sin límite" />
+    <x-input parametro="user"     label="Usuario"           :objeto="$usuario" />
+    <x-input parametro="password" label="Nueva contraseña"  type="password" hint="Dejar vacío para no cambiar" />
+    <x-input parametro="nombre"   label="Nombre completo"   :objeto="$usuario" />
+    <x-input parametro="rut"      label="RUT"               :objeto="$usuario" />
+    <x-input parametro="email"    label="Email"             type="email" :objeto="$usuario" />
+    <x-dateTime parametro="vigencia" label="Vigencia"       :objeto="$usuario" hint="Dejar vacío = sin límite" />
 
     {{-- Bloqueado --}}
     <div class="row form-group">
-        <label class="col-sm-3 col-form-label">Bloqueado</label>
-        <div class="col d-flex align-items-center">
+        <label class="col-12 col-sm-3 col-form-label">Bloqueado</label>
+        <div class="col-12 col-sm d-flex align-items-center">
             <input type="hidden" name="bloqueado" value="0">
             <input type="checkbox" name="bloqueado" value="1"
                    {{ old('bloqueado', $usuario->bloqueado) ? 'checked' : '' }}>
@@ -28,8 +28,8 @@
 
     {{-- Roles --}}
     <div class="row form-group">
-        <label class="col-sm-3 col-form-label">Roles</label>
-        <div class="col">
+        <label class="col-12 col-sm-3 col-form-label">Roles</label>
+        <div class="col-12 col-sm">
             @foreach ($roles as $id => $nombre)
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox"

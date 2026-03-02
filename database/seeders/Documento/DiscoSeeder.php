@@ -13,19 +13,12 @@ class DiscoSeeder extends Seeder
 
 		$discos = [
 			[
-				'nombre'      => 'Disco Principal',
-				'descripcion' => 'Almacenamiento principal de documentos',
-				'fecha'       => now(),
+				'nombre'      => 'recursos',
+				'descripcion' => 'Almacenamiento de recursos',
 			],
 			[
-				'nombre'      => 'Disco de Seguridad',
-				'descripcion' => 'Documentos de seguridad industrial',
-				'fecha'       => now(),
-			],
-			[
-				'nombre'      => 'Disco de Calidad',
-				'descripcion' => 'Documentos de control de calidad',
-				'fecha'       => now(),
+				'nombre'      => 'evaluaciones',
+				'descripcion' => 'Documentos de evaluaciones completadas',
 			],
 		];
 

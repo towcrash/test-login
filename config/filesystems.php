@@ -62,6 +62,15 @@ return [
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/recursos',
             'visibility' => 'public',
             'throw' => false,
+            'report' => false, 
+        ],
+
+        'evaluaciones' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/evaluaciones'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/evaluaciones',
+            'visibility' => 'public',
+            'throw' => false,
             'report' => false,
         ],
 

@@ -26,4 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->withErrors(['user' => 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.']);
         });
     })
+    ->withCommands([
+        __DIR__.'/../app/Console/Commands',
+    ])
     ->create();

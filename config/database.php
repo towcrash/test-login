@@ -63,6 +63,20 @@ return [
             ]) : [],
         ],
 
+        'survey' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_SURVEY_HOST', '127.0.0.1'),
+            'port'      => env('DB_SURVEY_PORT', '3306'),
+            'database'  => env('DB_SURVEY_DATABASE', ''),
+            'username'  => env('DB_SURVEY_USERNAME', ''),
+            'password'  => env('DB_SURVEY_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'strict'    => true,
+            'engine'    => null,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

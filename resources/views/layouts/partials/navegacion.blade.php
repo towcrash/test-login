@@ -26,26 +26,13 @@
 
                 @php $current = request()->route()?->getName() ?? ''; @endphp
 
-                {{-- ── Administración ──────────────────────────────────── --}}
-                @sisadmin
-                <li class="nav-header">ADMINISTRACIÓN</li>
-
-                <li class="nav-item {{ str_starts_with($current, 'usuario.') ? 'menu-is-opening menu-open' : '' }}">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-users-cog"></i>
-                        <p>Usuarios <i class="right fas fa-angle-left"></i></p>
+                {{-- ── Dashboard ────────────────────────────────────────── --}}
+                <li class="nav-item">
+                    <a href="{{ route('dashboard') }}" class="nav-link">
+                        <i class="fa-solid fa-gauge nav-icon"></i>
+                        <p>Dashboard</p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ route('usuario.usuario.index') }}"
-                               class="nav-link {{ request()->routeIs('usuario.usuario.*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Usuarios</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
-                @endsisadmin
 
                 {{-- ── Clientes ─────────────────────────────────────────── --}}
                 @anyrole('SisAdmin', 'Cliente', 'Evaluador')
@@ -118,47 +105,62 @@
                                 <p>Evaluaciones</p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ route('evaluacion.pregunta.index') }}"
-                               class="nav-link {{ request()->routeIs('evaluacion.pregunta.*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Preguntas</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('evaluacion.alternativa.index') }}"
-                               class="nav-link {{ request()->routeIs('evaluacion.alternativa.*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Alternativas</p>
-                            </a>
-                        </li>
                     </ul>
                 </li>
 
                 {{-- ── Aplicaciones ─────────────────────────────────────── --}}
-                @anyrole('SisAdmin', 'Evaluador', 'Colaborador')
+                
                 <li class="nav-header">APLICACIONES</li>
-                <li class="nav-item">
-                    <a href="{{ route('aplicacion.aplicacion.index') }}"
-                       class="nav-link {{ request()->routeIs('aplicacion.aplicacion.*') ? 'active' : '' }}">
+                <li class="nav-item {{ str_starts_with($current, 'aplicacion.') ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-tasks"></i>
-                        <p>Aplicaciones</p>
+                        <p>Aplicaciones <i class="right fas fa-angle-left"></i></p>
                     </a>
+                    @anyrole('SisAdmin', 'Evaluador', 'Colaborador')
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('aplicacion.aplicacion.index') }}"
+                               class="nav-link {{ request()->routeIs('aplicacion.aplicacion.index') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Aplicaciones</p>
+                            </a>
+                        </li>
+                    </ul>
+                    @endanyrole
+                    @anyrole('SisAdmin', 'Cliente', 'Contratista')
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('aplicacion.aplicacion.documentos') }}"
+                               class="nav-link {{ request()->routeIs('aplicacion.aplicacion.documentos') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Resultados</p>
+                            </a>
+                        </li>
+                    </ul>
+                    @endanyrole
                 </li>
-                @endanyrole
 
-                {{-- ── Recursos ─────────────────────────────────────────── --}}
-                @anyrole('SisAdmin', 'Evaluador', 'Colaborador')
-                <li class="nav-header">RECURSOS</li>
-                <li class="nav-item">
-                    <a href="{{ route('recurso.recurso.index') }}"
-                       class="nav-link {{ request()->routeIs('recurso.recurso.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-folder-open"></i>
-                        <p>Recursos</p>
+                
+                {{-- ── Administración ──────────────────────────────────── --}}
+                @sisadmin
+                <li class="nav-header">ADMINISTRACIÓN</li>
+
+                <li class="nav-item {{ str_starts_with($current, 'usuario.') ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-users-cog"></i>
+                        <p>Usuarios <i class="right fas fa-angle-left"></i></p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('usuario.usuario.index') }}"
+                               class="nav-link {{ request()->routeIs('usuario.usuario.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Usuarios</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                @endanyrole
-
+                @endsisadmin
             </ul>
         </nav>
     </div>

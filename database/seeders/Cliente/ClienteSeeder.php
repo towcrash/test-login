@@ -13,24 +13,8 @@ class ClienteSeeder extends Seeder
 
 		$clientes = [
 			[
-				'nombre'    => 'Empresa Constructora ABC',
-				'rut'       => '76123456-7',
-				'fecha'     => now(),
-			],
-			[
-				'nombre'    => 'Minera del Sur S.A.',
-				'rut'       => '76234567-8',
-				'fecha'     => now(),
-			],
-			[
-				'nombre'    => 'Ingeniería y Proyectos XYZ',
-				'rut'       => '76345678-9',
-				'fecha'     => now(),
-			],
-			[
-				'nombre'    => 'Servicios Industriales Ltda.',
-				'rut'       => '76456789-0',
-				'fecha'     => now(),
+				'nombre'    => 'Engineering PR',
+				'rut'       => '77828562-2',
 			],
 		];
 

@@ -1,5 +1,5 @@
 <table class="table table-bordered table-hover table-sm">
-    <thead class="thead-dark">
+    <thead class="thead-light">
         <tr>
             @sisadmin
                 <th>#</th>
@@ -10,8 +10,8 @@
             <th>Colaboradores</th>
             @if ($mostrarEstado)
                 <th>Estado</th>
+                <th></th>
             @endif
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -20,7 +20,12 @@
             @sisadmin
                 <td>{{ $contratista->id }}</td>
             @endsisadmin
-            <td><strong>{{ $contratista->nombre }}</strong></td>
+            <td>
+                <strong>{{ $contratista->nombre }}</strong>
+                <a href="{{ route($rutaBase .'show', $contratista) }}" class="btn btn-xs btn-warning" title="Ver">
+                <i class="fas fa-eye"></i>
+                </a>
+            </td>
             <td>{{ $contratista->rut ?? '—' }}</td>
             <td>
                 <span class="badge badge-primary">
@@ -42,13 +47,10 @@
                         <span class="badge badge-success">Activo</span>
                     @endif
                 </td>
-            @endif
+            
             <td class="text-center">
-                <a href="{{ route($rutaBase .'show', $contratista) }}" class="btn btn-xs btn-info" title="Ver">
-                    <i class="fas fa-eye"></i>
-                </a>
                 @sisadmin
-                    <a href="{{ route($rutaBase .'edit', $contratista) }}" class="btn btn-xs btn-warning" title="Editar">
+                    <a href="{{ route($rutaBase .'edit', $contratista) }}" class="btn btn-xs btn-info" title="Editar">
                         <i class="fas fa-edit"></i>
                     </a>
                     <form method="POST" action="{{ route($rutaBase . 'destroy', $contratista) }}" class="d-inline"
@@ -62,6 +64,7 @@
                     </form>
                 @endsisadmin
             </td>
+            @endif
         </tr>
         @empty
         <tr>

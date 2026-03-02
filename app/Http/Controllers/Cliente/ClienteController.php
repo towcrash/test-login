@@ -21,33 +21,48 @@ class ClienteController extends Controller
     {
         view()->share('rutaBase', $this->rutaBase);
     }
-    
-    public function index()
+
+    public function index(Request $request)
     {
         $usuario = Auth::guard('usuario')->user();
 
         if ($usuario->isSisAdmin()) {
-            $clientes = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
-                ->orderBy('id')
-                ->get();
+            $query = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
+                ->orderBy('id');
+
+            if ($request->filled('buscar')) {
+                $query->where('nombre', 'like', '%' . $request->buscar . '%');
+            }
+
+            $clientes = $query->paginate(20)->withQueryString();
 
             return view($this->rutaBase . 'index', compact('clientes'));
         }
 
         // Clientes donde el usuario está en Cliente_Usuario
-        $clientesComoUsuario = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
+        $queryUsuario = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
             ->whereIn('id', $usuario->clientes->pluck('id'))
-            ->orderBy('id')
-            ->get();
+            ->orderBy('id');
+
+        if ($request->filled('buscar')) {
+            $queryUsuario->where('nombre', 'like', '%' . $request->buscar . '%');
+        }
+
+        $clientesComoUsuario = $queryUsuario->paginate(20, ['*'], 'page_usuario')->withQueryString();
 
         // Clientes donde el usuario es evaluador
-        $clientesComoEvaluador = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
+        $queryEvaluador = Cliente::withCount(['contratistas', 'evaluadores', 'evaluaciones'])
             ->whereIn('id',
                 $usuario->evaluadores()->where('bloqueado', 0)->pluck('Cliente_id')
             )
-            ->whereNotIn('id', $clientesComoUsuario->pluck('id'))
-            ->orderBy('id')
-            ->get();
+            ->whereNotIn('id', $usuario->clientes->pluck('id'))
+            ->orderBy('id');
+
+        if ($request->filled('buscar')) {
+            $queryEvaluador->where('nombre', 'like', '%' . $request->buscar . '%');
+        }
+
+        $clientesComoEvaluador = $queryEvaluador->paginate(20, ['*'], 'page_evaluador')->withQueryString();
 
         return view($this->rutaBase . 'index', compact('clientesComoUsuario', 'clientesComoEvaluador'));
     }
@@ -123,12 +138,21 @@ class ClienteController extends Controller
             ->orderBy('nombre')
             ->pluck('nombre', 'id');
 
+        $contratistas  = $cliente->contratistas()->paginate(10, ['*'], 'page_contratistas');
+        $evaluadores   = $cliente->evaluadores()->with('usuario')->paginate(10, ['*'], 'page_evaluadores');
+        $evaluaciones  = $cliente->evaluaciones()->paginate(10, ['*'], 'page_evaluaciones');
+        $usuarios      = $cliente->usuarios()->paginate(10, ['*'], 'page_usuarios');
+
         return view($this->rutaBase .  'show', compact(
             'cliente',
             'contratistasDisponibles',
             'usuariosParaEvaluador',
             'usuariosDisponibles',
-            'evaluacionesDisponibles'
+            'evaluacionesDisponibles',
+            'contratistas',
+            'evaluadores',
+            'evaluaciones',
+            'usuarios'
         ));
     }
 
@@ -166,38 +190,26 @@ class ClienteController extends Controller
 
         $asignados = 0;
         $yaAsociados = 0;
-        
+
         foreach ($request->Usuario_id as $uid) {
             $ya = $cliente->usuarios()->where('Usuario_id', $uid)->exists();
-            if ($ya) {
-                $yaAsociados++;
-                continue;
-            }
+            if ($ya) { $yaAsociados++; continue; }
 
-            $cliente->usuarios()->attach($uid, [
-                'fecha'     => now(),
-                'bloqueado' => 0,
-            ]);
+            $cliente->usuarios()->attach($uid, ['fecha' => now(), 'bloqueado' => 0]);
 
             $usuario = Usuario::find($uid);
-            if ($usuario) {
-                $this->asegurarRolCliente($usuario);
-            }
+            if ($usuario) $this->asegurarRolCliente($usuario);
             $asignados++;
         }
 
         $mensaje = "";
         if ($asignados > 0) {
-            $mensaje .= $asignados === 1 
-                ? "1 usuario asociado al cliente. " 
-                : "{$asignados} usuarios asociados al cliente. ";
+            $mensaje .= $asignados === 1 ? "1 usuario asociado al cliente. " : "{$asignados} usuarios asociados al cliente. ";
         }
         if ($yaAsociados > 0) {
-            $mensaje .= $yaAsociados === 1
-                ? "1 usuario ya estaba asociado."
-                : "{$yaAsociados} usuarios ya estaban asociados.";
+            $mensaje .= $yaAsociados === 1 ? "1 usuario ya estaba asociado." : "{$yaAsociados} usuarios ya estaban asociados.";
         }
-        
+
         if ($asignados > 0) {
             SessionService::success('Usuario', trim($mensaje));
         } else {
@@ -210,7 +222,6 @@ class ClienteController extends Controller
     public function desasignarUsuario(Cliente $cliente, Usuario $usuario)
     {
         $cliente->usuarios()->detach($usuario->id);
-
         SessionService::success('Usuario', "Usuario {$usuario->nombre} desasociado del cliente.");
         return redirect()->route($this->rutaBase . 'show', $cliente);
     }
@@ -218,19 +229,16 @@ class ClienteController extends Controller
     public function asignarContratista(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'Contratista_id' => 'required|array|min:1',
+            'Contratista_id'   => 'required|array|min:1',
             'Contratista_id.*' => 'exists:Contratista,id',
         ]);
 
         $asignados = 0;
         $yaAsociados = 0;
-        
+
         foreach ($request->Contratista_id as $cid) {
             $ya = $cliente->contratistas()->where('Contratista_id', $cid)->exists();
-            if ($ya) {
-                $yaAsociados++;
-                continue;
-            }
+            if ($ya) { $yaAsociados++; continue; }
 
             $cliente->contratistas()->attach($cid, [
                 'Usuario_id' => Auth::guard('usuario')->id(),
@@ -242,16 +250,12 @@ class ClienteController extends Controller
 
         $mensaje = "";
         if ($asignados > 0) {
-            $mensaje .= $asignados === 1 
-                ? "1 contratista asignado. " 
-                : "{$asignados} contratistas asignados. ";
+            $mensaje .= $asignados === 1 ? "1 contratista asignado. " : "{$asignados} contratistas asignados. ";
         }
         if ($yaAsociados > 0) {
-            $mensaje .= $yaAsociados === 1
-                ? "1 contratista ya estaba asociado."
-                : "{$yaAsociados} contratistas ya estaban asociados.";
+            $mensaje .= $yaAsociados === 1 ? "1 contratista ya estaba asociado." : "{$yaAsociados} contratistas ya estaban asociados.";
         }
-        
+
         if ($asignados > 0) {
             SessionService::success('Contratista', trim($mensaje));
         } else {
@@ -271,44 +275,29 @@ class ClienteController extends Controller
     public function asignarEvaluador(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'Usuario_id' => 'required|array|min:1',
+            'Usuario_id'   => 'required|array|min:1',
             'Usuario_id.*' => 'exists:Usuario,id',
         ]);
 
         $asignados = 0;
         $yaAsociados = 0;
-        
+
         foreach ($request->Usuario_id as $uid) {
-            $ya = Evaluador::where('Cliente_id', $cliente->id)
-                ->where('Usuario_id', $uid)
-                ->exists();
+            $ya = Evaluador::where('Cliente_id', $cliente->id)->where('Usuario_id', $uid)->exists();
+            if ($ya) { $yaAsociados++; continue; }
 
-            if ($ya) {
-                $yaAsociados++;
-                continue;
-            }
-
-            Evaluador::create([
-                'Cliente_id' => $cliente->id,
-                'Usuario_id' => $uid,
-                'fecha'      => now(),
-                'bloqueado'  => 0,
-            ]);
+            Evaluador::create(['Cliente_id' => $cliente->id, 'Usuario_id' => $uid, 'fecha' => now(), 'bloqueado' => 0]);
             $asignados++;
         }
 
         $mensaje = "";
         if ($asignados > 0) {
-            $mensaje .= $asignados === 1 
-                ? "1 evaluador asignado. " 
-                : "{$asignados} evaluadores asignados. ";
+            $mensaje .= $asignados === 1 ? "1 evaluador asignado. " : "{$asignados} evaluadores asignados. ";
         }
         if ($yaAsociados > 0) {
-            $mensaje .= $yaAsociados === 1
-                ? "1 usuario ya era evaluador."
-                : "{$yaAsociados} usuarios ya eran evaluadores.";
+            $mensaje .= $yaAsociados === 1 ? "1 usuario ya era evaluador." : "{$yaAsociados} usuarios ya eran evaluadores.";
         }
-        
+
         if ($asignados > 0) {
             SessionService::success('Evaluador', trim($mensaje));
         } else {
@@ -334,9 +323,7 @@ class ClienteController extends Controller
         $cliente->usuarios()->sync($pivot);
 
         if ($agregarRol) {
-            Usuario::whereIn('id', $usuarioIds)->each(
-                fn($u) => $this->asegurarRolCliente($u)
-            );
+            Usuario::whereIn('id', $usuarioIds)->each(fn($u) => $this->asegurarRolCliente($u));
         }
     }
 
@@ -345,15 +332,10 @@ class ClienteController extends Controller
         if (!$usuario->hasRole('Cliente')) {
             $rol = Rol::where('nombre', 'Cliente')->where('bloqueado', 0)->first();
             if ($rol) {
-                $usuario->roles()->attach($rol->id, [
-                    'fecha'     => now(),
-                    'bloqueado' => 0,
-                ]);
+                $usuario->roles()->attach($rol->id, ['fecha' => now(), 'bloqueado' => 0]);
             }
         }
     }
-
-    // ── Evaluaciones del Cliente ─────────────────────────────────────────
 
     public function asignarEvaluacion(Request $request, Cliente $cliente)
     {
@@ -389,18 +371,13 @@ class ClienteController extends Controller
     public function desasignarEvaluacion(Cliente $cliente, Evaluacion $evaluacion)
     {
         $cliente->evaluaciones()->detach($evaluacion->id);
-
         SessionService::success('Evaluacion', 'Evaluación desasociada del cliente.');
         return redirect()->route($this->rutaBase . 'show', $cliente);
     }
 
-    // ── Evaluador ↔ Evaluación ────────────────────────────────────────────
-
     public function asignarEvaluadorEvaluacion(Request $request, Cliente $cliente, Evaluacion $evaluacion)
     {
-        $request->validate([
-            'Evaluador_id' => 'required|exists:Evaluador,id',
-        ]);
+        $request->validate(['Evaluador_id' => 'required|exists:Evaluador,id']);
 
         $ya = $evaluacion->evaluadores()->where('Evaluador_id', $request->Evaluador_id)->exists();
         if ($ya) {
@@ -421,7 +398,6 @@ class ClienteController extends Controller
     public function desasignarEvaluadorEvaluacion(Cliente $cliente, Evaluacion $evaluacion, Evaluador $evaluador)
     {
         $evaluacion->evaluadores()->detach($evaluador->id);
-
         SessionService::success('Evaluador', 'Evaluador removido de la evaluación.');
         return redirect()->route($this->rutaBase . 'show', $cliente);
     }

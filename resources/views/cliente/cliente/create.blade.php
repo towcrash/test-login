@@ -9,13 +9,13 @@
 
     {{-- Usuarios asociados --}}
     <div class="row form-group">
-        <label class="col-sm-3 col-form-label">
+        <label class="col-12 col-sm-3 col-form-label">
             Usuarios
             <small class="d-block text-muted" style="font-weight:normal">
                 Se asignará rol <em>Cliente</em> automáticamente si no lo tienen.
             </small>
         </label>
-        <div class="col">
+        <div class="col-12 col-sm">
             <select name="usuarios[]" id="usuarios" class="select2 form-control" multiple style="width:100%">
                 @foreach ($usuarios as $id => $nombre)
                     <option value="{{ $id }}"

@@ -11,11 +11,12 @@ return new class extends Migration
     {
         Schema::create('Aplicacion', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('Evaluador_id');
+            $table->unsignedInteger('Evaluador_id')->nullable();
             $table->unsignedInteger('Evaluacion_id');
             $table->unsignedInteger('Colaborador_id');
             $table->string('token');
             $table->timestamp('fecha')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('submitdate')->nullable();
             $table->tinyInteger('bloqueado')->default(0);
         });
     }

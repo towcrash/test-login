@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Facades\PdfGeneratorService;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -128,5 +129,8 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'SessionService' => App\Services\Facades\SessionService::class,
         'LogService'     => App\Services\Facades\LogService::class,
+        'SyncSubmitdateService' => App\Services\Facades\SyncSubmitdateService::class,
+        'PdfGeneratorService' => App\Services\Facades\PdfGeneratorService::class,
+        'EvaluacionPdfService' => App\Services\Facades\EvaluacionPdfService::class,
     ])->toArray(),
 ];

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Usuario\UsuarioController;
 use App\Http\Controllers\Cliente\ClienteController;
 use App\Http\Controllers\Cliente\EvaluadorController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Evaluacion\PreguntaController;
 use App\Http\Controllers\Evaluacion\AlternativaController;
 use App\Http\Controllers\Aplicacion\AplicacionController;
 use App\Http\Controllers\Recurso\RecursoController;
+use App\Http\Controllers\Documento\DocumentoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,9 +29,7 @@ Route::post('/logout',[LoginController::class, 'logout'])       ->name('auth.log
 | Dashboard
 |--------------------------------------------------------------------------
 */
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
@@ -115,6 +115,14 @@ Route::prefix('contratista')->name('contratista.')->group(function () {
         [ContratistaController::class, 'desasignarColaborador'])
         ->name('contratista.desasignarColaborador');
 
+    Route::post('contratista/{contratista}/colaborador/{colaborador}/evaluacion',
+        [ContratistaController::class, 'asignarEvaluacionColaborador'])
+        ->name('contratista.asignarEvaluacionColaborador');
+
+    Route::delete('contratista/{contratista}/colaborador/{colaborador}/evaluacion/{evaluacion}',
+        [ContratistaController::class, 'desasignarEvaluacionColaborador'])
+        ->name('contratista.desasignarEvaluacionColaborador');
+
     Route::resource('colaborador', ColaboradorController::class);
 });
 
@@ -125,8 +133,12 @@ Route::prefix('contratista')->name('contratista.')->group(function () {
 */
 Route::prefix('evaluacion')->name('evaluacion.')->group(function () {
     Route::resource('evaluacion', EvaluacionController::class);
-    Route::resource('pregunta',   PreguntaController::class);
-    Route::resource('alternativa',AlternativaController::class);
+    Route::resource('pregunta',   PreguntaController::class)
+        ->only(['store', 'edit',  'update', 'destroy'])
+        ->parameter('pregunta', 'pregunta');
+    Route::resource('alternativa',AlternativaController::class)
+        ->only(['store','update', 'destroy'])  
+        ->parameter('alternativa', 'alternativa');
 });
 
 /*
@@ -136,6 +148,11 @@ Route::prefix('evaluacion')->name('evaluacion.')->group(function () {
 */
 Route::prefix('aplicacion')->name('aplicacion.')->group(function () {
     Route::resource('aplicacion', AplicacionController::class)->only(['index', 'show', 'destroy']);
+    Route::post('/aplicaciones/{aplicacion}/asignarme', [AplicacionController::class, 'asignarEvaluador'])
+        ->name('aplicacion.asignarme');
+
+    Route::get('documentos', [AplicacionController::class, 'documentos'])
+        ->name('aplicacion.documentos');
 });
 
 /*
@@ -145,4 +162,19 @@ Route::prefix('aplicacion')->name('aplicacion.')->group(function () {
 */
 Route::prefix('recurso')->name('recurso.')->group(function () {
     Route::resource('recurso', RecursoController::class);
+    Route::get('recurso/{recurso}/download',[RecursoController::class, 'download'])->name('recurso.download');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Documentos
+|--------------------------------------------------------------------------
+*/
+Route::prefix('documento')->name('documento.')->group(function () {
+    Route::get('documento/{documento}/download', [DocumentoController::class, 'download'])
+    ->name('documento.download');
+    
+    Route::get('documento/{documento}/view', [DocumentoController::class, 'view'])
+    ->name('documento.view');
+});
+

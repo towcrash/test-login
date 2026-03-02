@@ -4,7 +4,6 @@ namespace App\Models\Recurso;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Documento\Disco;
 use App\Models\Recurso\Recurso;
 
 class TipoRecurso extends Model
@@ -14,7 +13,6 @@ class TipoRecurso extends Model
 	public $timestamps  = false;
 	protected $table    = 'TipoRecurso';
 	protected $fillable = [
-		'Disco_id',
 		'nombre',
 		'codigo',
 		'color',
@@ -29,14 +27,6 @@ class TipoRecurso extends Model
 	/*
 	 * Relaciones
 	 */
-	function disco()
-	{
-		return $this->belongsTo(
-			Disco::class,
-			'Disco_id',
-			'id'
-		);
-	}
 
 	function recursos()
 	{

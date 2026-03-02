@@ -20,11 +20,13 @@ class Aplicacion extends Model
 		'Colaborador_id',
 		'token',
 		'fecha',
+		'submitdate',
 		'bloqueado',
 	];
 
 	protected $casts = [
 		'fecha' => 'datetime',
+		'submitdate' => 'datetime'
 	];
 
 	/*

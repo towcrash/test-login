@@ -11,7 +11,6 @@ return new class extends Migration
     {
         Schema::create('TipoRecurso', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('Disco_id');
             $table->string('nombre');
             $table->string('codigo');
             $table->string('color');

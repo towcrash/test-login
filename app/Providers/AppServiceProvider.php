@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Pagination\Paginator;
 use App\Services\Services\SessionService as SessionServiceImpl;
 use App\Services\Services\LogService as LogServiceImpl;
+use App\Services\Services\SyncSubmitdateService as SyncSubmitDateServiceImpl;
+use App\Services\Services\PdfGeneratorService as PdfGeneratorServiceImpl;
+use App\Services\Services\EvaluacionPdfService as EvaluacionServiceImpl;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,19 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('logService', function () {
             return new LogServiceImpl();
         });
+
+        $this->app->singleton('syncSubmitdateService', function() {
+            return new SyncSubmitdateServiceImpl();
+        });
+
+        $this->app->bind('pdfGeneratorService', function() {
+             return new PdfGeneratorServiceImpl();
+        });
+
+        $this->app->singleton('evaluacionPdfService', function() {
+            return new EvaluacionServiceImpl();
+        });
+    
     }
 
     public function boot(): void

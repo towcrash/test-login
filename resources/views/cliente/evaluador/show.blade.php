@@ -13,7 +13,7 @@
 <div class="row">
 
     {{-- Info del usuario evaluador --}}
-    <div class="col-md-4">
+    <div class="col-12 col-md-4 mb-4">
         <x-card titulo="Datos del Evaluador">
             <table class="table table-sm table-borderless mb-0">
                 <tr><th>Usuario</th><td>{{ $evaluador->usuario->user }}</td></tr>
@@ -34,18 +34,18 @@
     </div>
 
     {{-- Clientes y evaluaciones por cliente --}}
-    <div class="col-md-8">
-        <x-card titulo="Clientes y Evaluaciones asignadas ({{ $todasInstancias->count() }} cliente(s))">
+    <div class="col-12 col-md-8 mb-4">
+        <x-card titulo="Clientes y Evaluaciones asignadas ({{ $todasInstancias->total() }} cliente(s) en total)">
             @forelse ($todasInstancias as $instancia)
             <div class="mb-3 p-3 border rounded">
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
                     <h6 class="mb-0">
                         <i class="fas fa-building mr-1 text-primary"></i>
                         <a href="{{ route('cliente.cliente.show', $instancia->cliente) }}">
                             {{ $instancia->cliente->nombre }}
                         </a>
                     </h6>
-                    <div>
+                    <div class="mt-1">
                         @if ($instancia->bloqueado)
                             <span class="badge badge-danger">Evaluador bloqueado</span>
                         @else
@@ -58,7 +58,7 @@
                 </div>
 
                 @forelse ($instancia->evaluaciones as $evaluacion)
-                <div class="d-flex justify-content-between align-items-center py-1 pl-3 border-left ml-2">
+                <div class="d-flex flex-wrap justify-content-between align-items-center py-1 pl-3 border-left ml-2">
                     <div>
                         <i class="fas fa-clipboard-list mr-1 text-secondary"></i>
                         <strong>{{ $evaluacion->nombre }}</strong>
@@ -66,7 +66,7 @@
                             <br><small class="text-muted pl-4">{{ $evaluacion->descripcion }}</small>
                         @endif
                     </div>
-                    <div>
+                    <div class="mt-1">
                         @if ($evaluacion->bloqueado)
                             <span class="badge badge-danger">Bloqueada</span>
                         @else
@@ -84,6 +84,15 @@
             @empty
             <p class="text-muted mb-0">Este usuario no tiene instancias como evaluador.</p>
             @endforelse
+
+            @if ($todasInstancias->hasPages())
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-2 border-top gap-2">
+                <small class="text-muted">
+                    Página {{ $todasInstancias->currentPage() }} de {{ $todasInstancias->lastPage() }}
+                </small>
+                {{ $todasInstancias->links() }}
+            </div>
+            @endif
         </x-card>
     </div>
 

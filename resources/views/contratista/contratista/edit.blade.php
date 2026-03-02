@@ -4,7 +4,7 @@
 @section('contenido')
 
 <div class="row justify-content-center">
-<div class="col-7 col-lg-8">
+<div class="col-12 col-md-9 col-lg-8">
 
 <form name="update" method="POST"
     action="{{ route($rutaBase . 'update', ['contratista' => $contratista]) }}"
@@ -18,8 +18,8 @@
 
     {{-- Clientes --}}
     <div class="row form-group">
-        <label class="col-sm-3 col-form-label">Clientes</label>
-        <div class="col">
+        <label class="col-12 col-sm-3 col-form-label">Clientes</label>
+        <div class="col-12 col-sm">
             <select name="clientes[]" id="selectClientes" class="select2 form-control" multiple style="width:100%">
                 @foreach ($clientes as $id => $nombre)
                     <option value="{{ $id }}"
@@ -34,8 +34,8 @@
 
     {{-- Usuarios --}}
     <div class="row form-group">
-        <label class="col-sm-3 col-form-label">Usuarios</label>
-        <div class="col">
+        <label class="col-12 col-sm-3 col-form-label">Usuarios</label>
+        <div class="col-12 col-sm">
             <select name="usuarios[]" id="selectUsuarios" class="select2 form-control" multiple style="width:100%">
                 @foreach ($usuarios as $id => $nombre)
                     <option value="{{ $id }}"
@@ -50,11 +50,11 @@
 
     {{-- Colaboradores --}}
     <div class="row form-group">
-        <label class="col-sm-3 col-form-label">
+        <label class="col-12 col-sm-3 col-form-label">
             Colaboradores
             <small class="d-block text-muted" style="font-weight:normal">Solo usuarios con rol <em>Colaborador</em>.</small>
         </label>
-        <div class="col">
+        <div class="col-12 col-sm">
             <select name="colaboradores[]" id="selectColaboradores" class="select2 form-control" multiple style="width:100%">
                 @foreach ($colaboradores as $id => $nombre)
                     <option value="{{ $id }}"
@@ -69,10 +69,10 @@
 
     <hr>
     <div class="row">
-        <div class="col">
+        <div class="col-12 col-sm mb-2 mb-sm-0">
             <button id="btnAccion" class="btn btn-block btn-success">Actualizar</button>
         </div>
-        <div class="col">
+        <div class="col-12 col-sm">
             <button id="btnCancelar" class="btn btn-block btn-primary">Cancelar</button>
         </div>
     </div>

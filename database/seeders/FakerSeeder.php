@@ -25,6 +25,7 @@ class FakerSeeder extends Seeder
     private $faker;
     private $usuarios = [];
     private $roles = [];
+    private $usuariosPorRol = []; // Almacenar usuarios por ID de rol
     private $clientes = [];
     private $contratistas = [];
     private $evaluaciones = [];
@@ -35,7 +36,15 @@ class FakerSeeder extends Seeder
     private $recursos = [];
     private $evaluadores = [];
     private $colaboradores = [];
-    private const CANTIDAD_USUARIOS = 15;
+    
+    // Constantes para IDs de roles (AJUSTAR SEGÚN TUS DATOS REALES)
+    private const ROL_ADMIN_ID = 1;
+    private const ROL_CLIENTE_ID = 2;
+    private const ROL_CONTRATISTA_ID = 3;
+    private const ROL_EVALUADOR_ID = 4;
+    private const ROL_COLABORADOR_ID = 5;
+    
+    private const CANTIDAD_USUARIOS = 20;
     private const CANTIDAD_CLIENTES = 6;
     private const CANTIDAD_CONTRATISTAS = 8;
     private const CANTIDAD_EVALUACIONES = 8;
@@ -53,12 +62,12 @@ class FakerSeeder extends Seeder
         // Desactivar restricciones de llaves foráneas temporalmente
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
-        // Poblar tablas en orden (respetando dependencias)
+        // Poblar tablas en orden
         $this->command->info('Creando usuarios...');
         $this->seedUsuarios();
         
-        $this->command->info('Creando roles...');
-        $this->seedRoles();
+        $this->command->info('Cargando roles...');
+        $this->cargarRoles();
         
         $this->command->info('Asignando roles a usuarios...');
         $this->seedUsuarioRol();
@@ -78,10 +87,10 @@ class FakerSeeder extends Seeder
         $this->command->info('Creando relaciones Contratista-Usuario...');
         $this->seedContratistaUsuario();
         
-        $this->command->info('Creando evaluadores...');
+        $this->command->info('Creando evaluadores (usuarios con rol evaluador)...');
         $this->seedEvaluadores();
         
-        $this->command->info('Creando colaboradores...');
+        $this->command->info('Creando colaboradores (usuarios con rol colaborador)...');
         $this->seedColaboradores();
         
         $this->command->info('Creando evaluaciones...');
@@ -90,7 +99,7 @@ class FakerSeeder extends Seeder
         $this->command->info('Creando preguntas...');
         $this->seedPreguntas();
         
-        $this->command->info('Creando alternativas...');
+        $this->command->info('Creando alternativas (una por pregunta)...');
         $this->seedAlternativas();
         
         $this->command->info('Creando relaciones Cliente-Evaluacion...');
@@ -139,6 +148,7 @@ class FakerSeeder extends Seeder
     {
         $this->usuarios = null;
         $this->roles = null;
+        $this->usuariosPorRol = null;
         $this->clientes = null;
         $this->contratistas = null;
         $this->evaluaciones = null;
@@ -153,7 +163,55 @@ class FakerSeeder extends Seeder
     }
 
     /**
-     * Seed de usuarios con la nueva estructura
+     * Cargar roles existentes y organizar usuarios por rol
+     */
+    private function cargarRoles()
+    {
+        // Obtener todos los roles existentes
+        $rolesExistentes = DB::table('Rol')->get();
+        
+        if ($rolesExistentes->isEmpty()) {
+            $this->command->error('No se encontraron roles en la tabla Rol. Verifica que los roles hayan sido creados previamente.');
+            return;
+        }
+        
+        // Guardar IDs de roles
+        foreach ($rolesExistentes as $rol) {
+            $this->roles[$rol->nombre] = $rol->id;
+        }
+        
+        $this->command->info('Roles cargados: ' . implode(', ', array_keys($this->roles)));
+    }
+
+    /**
+     * Obtener usuarios que tienen un rol específico
+     */
+    private function getUsuariosByRol($rolId)
+    {
+        $key = 'rol_' . $rolId;
+        
+        if (!isset($this->usuariosPorRol[$key])) {
+            $this->usuariosPorRol[$key] = DB::table('Usuario_Rol')
+                ->where('Rol_id', $rolId)
+                ->where('bloqueado', 0)
+                ->pluck('Usuario_id')
+                ->toArray();
+        }
+        
+        return $this->usuariosPorRol[$key];
+    }
+
+    /**
+     * Obtener usuarios que NO tienen un rol específico
+     */
+    private function getUsuariosWithoutRol($rolId)
+    {
+        $usuariosConRol = $this->getUsuariosByRol($rolId);
+        return array_diff($this->usuarios, $usuariosConRol);
+    }
+
+    /**
+     * Seed de usuarios
      */
     private function seedUsuarios()
     {
@@ -229,56 +287,77 @@ class FakerSeeder extends Seeder
     }
 
     /**
-     * Seed de roles
-     */
-    private function seedRoles()
-    {
-        // Obtener todos los roles existentes de la base de datos
-        $rolesExistentes = DB::table('Rol')->get();
-        
-        // Si no hay roles, mostrar advertencia
-        if ($rolesExistentes->isEmpty()) {
-            $this->command->warn('No se encontraron roles en la tabla Rol. Verifica que los roles hayan sido creados previamente.');
-            return;
-        }
-        
-        // Añadir los IDs de los roles existentes al array
-        foreach ($rolesExistentes as $rol) {
-            $this->roles[] = $rol->id;
-        }
-        
-        $this->command->info('Se cargaron ' . count($this->roles) . ' roles existentes desde la base de datos.');
-    }
-
-    /**
-     * Seed de usuario_rol
+     * Seed de usuario_rol con roles específicos para cada tipo de usuario
      */
     private function seedUsuarioRol()
     {
-        // Asignar rol de Administrador al usuario admin
-        $admin = Usuario::find($this->usuarios[0]);
-        $admin->roles()->attach($this->roles[0], [
-            'bloqueado' => 0,
-        ]);
+        // Verificar que tenemos roles definidos
+        if (empty($this->roles)) {
+            $this->command->error('No hay roles definidos. No se pueden asignar roles a usuarios.');
+            return;
+        }
 
-        // Asignar roles aleatorios a otros usuarios
-        foreach (array_slice($this->usuarios, 1) as $usuarioId) {
-            $usuario = Usuario::find($usuarioId);
+        // Obtener IDs de roles por nombre
+        $rolAdminId = $this->roles['SisAdmin'] ?? null;
+        $rolClienteId = $this->roles['Cliente'] ?? null;
+        $rolContratistaId = $this->roles['Contratista'] ?? null;
+        $rolEvaluadorId = $this->roles['Evaluador'] ?? null;
+        $rolColaboradorId = $this->roles['Colaborador'] ?? null;
+
+        if (!$rolAdminId || !$rolClienteId || !$rolContratistaId || !$rolEvaluadorId || !$rolColaboradorId) {
+            $this->command->error('Faltan roles requeridos. Verifica que existan: Administrador, Cliente, Contratista, Evaluador, Colaborador');
+            return;
+        }
+
+        // Asignar rol de Administrador al primer usuario
+        $admin = Usuario::find($this->usuarios[0]);
+        $admin->roles()->attach($rolAdminId, ['bloqueado' => 0]);
+
+        // Distribuir roles entre los usuarios restantes
+        $usuariosRestantes = array_slice($this->usuarios, 1);
+        
+        // Definir cuántos usuarios queremos por cada rol
+        $distribucionRoles = [
+            $rolClienteId => 4,
+            $rolContratistaId => 4,
+            $rolEvaluadorId => 3,
+            $rolColaboradorId => 3,
+        ];
+
+        // Mezclar usuarios para asignación aleatoria
+        shuffle($usuariosRestantes);
+        $indice = 0;
+
+        // Asignar roles principales
+        foreach ($distribucionRoles as $rolId => $cantidad) {
+            for ($i = 0; $i < $cantidad && $indice < count($usuariosRestantes); $i++) {
+                $usuario = Usuario::find($usuariosRestantes[$indice]);
+                $usuario->roles()->attach($rolId, [
+                    'fecha' => $this->faker->dateTimeBetween('-6 months', 'now'),
+                    'bloqueado' => 0,
+                ]);
+                $indice++;
+            }
+        }
+
+        // Asignar roles secundarios aleatorios a usuarios que ya tienen un rol principal
+        for ($i = 0; $i < $indice; $i++) {
+            $usuario = Usuario::find($usuariosRestantes[$i]);
             
-            // Cada usuario tiene entre 1 y 3 roles
-            $numRoles = rand(1, 3);
-            $rolesAsignados = [];
-            
-            for ($j = 0; $j < $numRoles; $j++) {
-                $rolId = $this->roles[array_rand($this->roles)];
+            // 30% de probabilidad de tener un segundo rol
+            if ($this->faker->boolean(30)) {
+                $rolesDisponibles = [$rolClienteId, $rolContratistaId, $rolEvaluadorId, $rolColaboradorId];
+                $rolesActuales = $usuario->roles->pluck('id')->toArray();
                 
-                // Evitar duplicados usando el array
-                if (!in_array($rolId, $rolesAsignados)) {
-                    $usuario->roles()->attach($rolId, [
-                        'fecha' => $this->faker->dateTimeBetween('-6 months', 'now'),
-                        'bloqueado' => $this->faker->boolean(5) ? 1 : 0,
+                // Elegir un rol que no tenga actualmente
+                $rolesPosibles = array_diff($rolesDisponibles, $rolesActuales);
+                
+                if (!empty($rolesPosibles)) {
+                    $rolSecundario = $rolesPosibles[array_rand($rolesPosibles)];
+                    $usuario->roles()->attach($rolSecundario, [
+                        'fecha' => $this->faker->dateTimeBetween('-3 months', 'now'),
+                        'bloqueado' => 0,
                     ]);
-                    $rolesAsignados[] = $rolId;
                 }
             }
         }
@@ -321,11 +400,26 @@ class FakerSeeder extends Seeder
 
     private function seedClienteContratista($cantidad = 15)
     {
+        $rolClienteId = $this->roles['Cliente'] ?? null;
+        $rolContratistaId = $this->roles['Contratista'] ?? null;
+        
+        if (!$rolClienteId || !$rolContratistaId) {
+            $this->command->warn('Roles Cliente o Contratista no encontrados. Saltando seedClienteContratista');
+            return;
+        }
+
+        $usuariosCliente = $this->getUsuariosByRol($rolClienteId);
         $pares = [];
+        
         for ($i = 0; $i < $cantidad; $i++) {
             $clienteId = $this->clientes[array_rand($this->clientes)];
             $contratistaId = $this->contratistas[array_rand($this->contratistas)];
-            $usuarioId = $this->usuarios[array_rand($this->usuarios)];
+            
+            // Usar un usuario con rol Cliente (o cualquier usuario si no hay)
+            $usuarioId = !empty($usuariosCliente) 
+                ? $usuariosCliente[array_rand($usuariosCliente)] 
+                : $this->usuarios[array_rand($this->usuarios)];
+                
             $key = $clienteId . '-' . $contratistaId;
             
             if (!in_array($key, $pares)) {
@@ -342,10 +436,24 @@ class FakerSeeder extends Seeder
 
     private function seedClienteUsuario($cantidad = 20)
     {
+        $rolClienteId = $this->roles['Cliente'] ?? null;
+        
+        if (!$rolClienteId) {
+            $this->command->warn('Rol Cliente no encontrado. Saltando seedClienteUsuario');
+            return;
+        }
+
+        $usuariosCliente = $this->getUsuariosByRol($rolClienteId);
+        
+        if (empty($usuariosCliente)) {
+            $this->command->warn('No hay usuarios con rol Cliente. Saltando seedClienteUsuario');
+            return;
+        }
+
         $pares = [];
         for ($i = 0; $i < $cantidad; $i++) {
             $clienteId = $this->clientes[array_rand($this->clientes)];
-            $usuarioId = $this->usuarios[array_rand($this->usuarios)];
+            $usuarioId = $usuariosCliente[array_rand($usuariosCliente)];
             $key = $clienteId . '-' . $usuarioId;
             
             if (!in_array($key, $pares)) {
@@ -361,10 +469,24 @@ class FakerSeeder extends Seeder
 
     private function seedContratistaUsuario($cantidad = 20)
     {
+        $rolContratistaId = $this->roles['Contratista'] ?? null;
+        
+        if (!$rolContratistaId) {
+            $this->command->warn('Rol Contratista no encontrado. Saltando seedContratistaUsuario');
+            return;
+        }
+
+        $usuariosContratista = $this->getUsuariosByRol($rolContratistaId);
+        
+        if (empty($usuariosContratista)) {
+            $this->command->warn('No hay usuarios con rol Contratista. Saltando seedContratistaUsuario');
+            return;
+        }
+
         $pares = [];
         for ($i = 0; $i < $cantidad; $i++) {
             $contratistaId = $this->contratistas[array_rand($this->contratistas)];
-            $usuarioId = $this->usuarios[array_rand($this->usuarios)];
+            $usuarioId = $usuariosContratista[array_rand($usuariosContratista)];
             $key = $contratistaId . '-' . $usuarioId;
             
             if (!in_array($key, $pares)) {
@@ -380,40 +502,82 @@ class FakerSeeder extends Seeder
 
     private function seedEvaluadores($cantidad = 8)
     {
+        $rolEvaluadorId = $this->roles['Evaluador'] ?? null;
+        
+        if (!$rolEvaluadorId) {
+            $this->command->warn('Rol Evaluador no encontrado. Saltando seedEvaluadores');
+            return;
+        }
+
+        $usuariosEvaluador = $this->getUsuariosByRol($rolEvaluadorId);
+        
+        if (empty($usuariosEvaluador)) {
+            $this->command->warn('No hay usuarios con rol Evaluador. Saltando seedEvaluadores');
+            return;
+        }
+
         $pares = [];
-        for ($i = 0; $i < $cantidad; $i++) {
+        for ($i = 0; $i < min($cantidad, count($usuariosEvaluador) * 2); $i++) {
             $clienteId = $this->clientes[array_rand($this->clientes)];
-            $usuarioId = $this->usuarios[array_rand($this->usuarios)];
+            $usuarioId = $usuariosEvaluador[array_rand($usuariosEvaluador)];
             $key = $clienteId . '-' . $usuarioId;
             
             if (!in_array($key, $pares)) {
-                $evaluador = Evaluador::create([
-                    'Cliente_id' => $clienteId,
-                    'Usuario_id' => $usuarioId,
-                    'fecha' => $this->faker->dateTimeBetween('-1 year', 'now'),
-                ]);
-                $this->evaluadores[] = $evaluador->id;
-                $pares[] = $key;
+                // Verificar que el usuario no sea ya evaluador de este cliente
+                $existe = Evaluador::where('Cliente_id', $clienteId)
+                    ->where('Usuario_id', $usuarioId)
+                    ->exists();
+                
+                if (!$existe) {
+                    $evaluador = Evaluador::create([
+                        'Cliente_id' => $clienteId,
+                        'Usuario_id' => $usuarioId,
+                        'fecha' => $this->faker->dateTimeBetween('-1 year', 'now'),
+                    ]);
+                    $this->evaluadores[] = $evaluador->id;
+                    $pares[] = $key;
+                }
             }
         }
     }
 
     private function seedColaboradores($cantidad = 10)
     {
+        $rolColaboradorId = $this->roles['Colaborador'] ?? null;
+        
+        if (!$rolColaboradorId) {
+            $this->command->warn('Rol Colaborador no encontrado. Saltando seedColaboradores');
+            return;
+        }
+
+        $usuariosColaborador = $this->getUsuariosByRol($rolColaboradorId);
+        
+        if (empty($usuariosColaborador)) {
+            $this->command->warn('No hay usuarios con rol Colaborador. Saltando seedColaboradores');
+            return;
+        }
+
         $pares = [];
-        for ($i = 0; $i < $cantidad; $i++) {
+        for ($i = 0; $i < min($cantidad, count($usuariosColaborador) * 2); $i++) {
             $contratistaId = $this->contratistas[array_rand($this->contratistas)];
-            $usuarioId = $this->usuarios[array_rand($this->usuarios)];
+            $usuarioId = $usuariosColaborador[array_rand($usuariosColaborador)];
             $key = $contratistaId . '-' . $usuarioId;
             
             if (!in_array($key, $pares)) {
-                $colaborador = Colaborador::create([
-                    'Contratista_id' => $contratistaId,
-                    'Usuario_id' => $usuarioId,
-                    'fecha' => $this->faker->dateTimeBetween('-1 year', 'now'),
-                ]);
-                $this->colaboradores[] = $colaborador->id;
-                $pares[] = $key;
+                // Verificar que el usuario no sea ya colaborador de este contratista
+                $existe = Colaborador::where('Contratista_id', $contratistaId)
+                    ->where('Usuario_id', $usuarioId)
+                    ->exists();
+                
+                if (!$existe) {
+                    $colaborador = Colaborador::create([
+                        'Contratista_id' => $contratistaId,
+                        'Usuario_id' => $usuarioId,
+                        'fecha' => $this->faker->dateTimeBetween('-1 year', 'now'),
+                    ]);
+                    $this->colaboradores[] = $colaborador->id;
+                    $pares[] = $key;
+                }
             }
         }
     }
@@ -464,7 +628,7 @@ class FakerSeeder extends Seeder
             for ($j = 0; $j < $numPreguntas; $j++) {
                 $area = $areas[array_rand($areas)];
                 
-                // Generar código único sin usar Faker::unique()
+                // Generar código único
                 do {
                     $codigo = $area . '-' . str_pad(rand(1, 50), 3, '0', STR_PAD_LEFT);
                 } while (in_array($codigo, $codigosUsados));
@@ -484,26 +648,35 @@ class FakerSeeder extends Seeder
 
     private function seedAlternativas()
     {
-        $tiposAlternativas = [
-            ['Sí, completamente', 'Parcialmente', 'No cumple'],
-            ['Sí', 'No', 'No aplica'],
-            ['Excelente', 'Bueno', 'Regular', 'Deficiente'],
-            ['Siempre', 'Frecuentemente', 'A veces', 'Nunca'],
-            ['Cumple', 'No cumple'],
+        $textosAlternativas = [
+            'Sí, completamente',
+            'Parcialmente',
+            'No cumple',
+            'Sí',
+            'No',
+            'No aplica',
+            'Excelente',
+            'Bueno',
+            'Regular',
+            'Deficiente',
+            'Siempre',
+            'Frecuentemente',
+            'A veces',
+            'Nunca',
+            'Cumple',
+            'No cumple',
         ];
 
         foreach ($this->preguntas as $preguntaId) {
-            $tipoAlternativa = $tiposAlternativas[array_rand($tiposAlternativas)];
-            $letras = range('A', 'D');
+            $textoAlternativa = $textosAlternativas[array_rand($textosAlternativas)];
+            $codigoAlternativa = strtoupper(Str::random(rand(2, 4)));
             
-            foreach ($tipoAlternativa as $index => $texto) {
-                Alternativa::create([
-                    'Pregunta_id' => $preguntaId,
-                    'texto' => $texto,
-                    'codigo' => $letras[$index],
-                    'fecha' => $this->faker->dateTimeBetween('-6 months', 'now'),
-                ]);
-            }
+            Alternativa::create([
+                'Pregunta_id' => $preguntaId,
+                'texto' => $textoAlternativa,
+                'codigo' => $codigoAlternativa,
+                'fecha' => $this->faker->dateTimeBetween('-6 months', 'now'),
+            ]);
         }
     }
 
@@ -594,16 +767,29 @@ class FakerSeeder extends Seeder
 
     private function seedDiscos()
     {
-        $nombresDiscos = ['Principal', 'Seguridad', 'Calidad', 'Medio Ambiente'];
+        $discosData = [
+            [
+                'nombre'      => 'recursos',
+                'descripcion' => 'Almacenamiento de recursos',
+            ],
+            [
+                'nombre'      => 'evaluaciones',
+                'descripcion' => 'Documentos de evaluaciones completadas',
+            ],
+        ];
 
-        for ($i = 0; $i < self::CANTIDAD_DISCOS; $i++) {
-            $disco = Disco::create([
-                'nombre' => 'Disco ' . $nombresDiscos[$i],
-                'descripcion' => $this->faker->optional(0.6)->sentence(6),
-                'fecha' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            ]);
+        foreach ($discosData as $discoData) {
+            $disco = Disco::firstOrCreate(
+                ['nombre' => $discoData['nombre']],
+                [
+                    'descripcion' => $discoData['descripcion'],
+                    'fecha' => $this->faker->dateTimeBetween('-1 year', 'now'),
+                ]
+            );
             $this->discos[] = $disco->id;
         }
+        
+        $this->command->info('Discos creados: ' . implode(', ', array_column($discosData, 'nombre')));
     }
 
     private function seedDocumentos()
@@ -638,7 +824,6 @@ class FakerSeeder extends Seeder
             $tipo = $tipos[$i];
             
             $tipoRecurso = TipoRecurso::create([
-                'Disco_id' => $this->discos[array_rand($this->discos)],
                 'nombre' => $tipo[0],
                 'codigo' => $tipo[1],
                 'color' => $tipo[2],

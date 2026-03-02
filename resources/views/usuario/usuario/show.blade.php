@@ -17,7 +17,7 @@
 @section('contenido')
 <div class="row">
     {{-- Info general --}}
-    <div class="col-md-4">
+    <div class="col-12 col-md-4 mb-4">
         <x-card titulo="Información General">
             <table class="table table-sm table-borderless mb-0">
                 <tr><th>Usuario</th><td>{{ $usuario->user }}</td></tr>
@@ -59,11 +59,11 @@
         </x-card>
     </div>
 
-    {{-- Clientes --}}
-    <div class="col-md-4">
+    {{-- Como Evaluador --}}
+    <div class="col-12 col-md-4 mb-4">
         <x-card titulo="Como Evaluador">
             @forelse ($usuario->evaluadores as $ev)
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-1">
                     <span>
                         <i class="fas fa-building mr-1 text-primary"></i>
                         {{ $ev->cliente->nombre }}
@@ -78,11 +78,11 @@
         </x-card>
     </div>
 
-    {{-- Contratistas --}}
-    <div class="col-md-4">
+    {{-- Como Colaborador --}}
+    <div class="col-12 col-md-4 mb-4">
         <x-card titulo="Como Colaborador">
             @forelse ($usuario->colaboradores as $col)
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-1">
                     <span>
                         <i class="fas fa-hard-hat mr-1 text-warning"></i>
                         {{ $col->contratista->nombre }}

@@ -64,7 +64,7 @@
 @section('contenido')
 <div class="row">
 
-    {{-- ── Columna izquierda: datos + formularios ── --}}
+    {{-- Columna izquierda: datos, formularios --}}
     <div class="col-md-4">
 
         <x-card titulo="Datos del Cliente">
@@ -117,9 +117,11 @@
                     <div>
                         <strong>{{ $usuario->nombre }}</strong><br>
                         <small class="text-muted">{{ $usuario->user }}</small><br>
-                        @foreach ($usuario->roles as $rol)
-                            <span class="badge badge-primary" style="font-size:.75em">{{ $rol->nombre }}</span>
-                        @endforeach
+                        @sisadmin
+                            @foreach ($usuario->roles as $rol)
+                                <span class="badge badge-primary" style="font-size:.75em">{{ $rol->nombre }}</span>
+                            @endforeach
+                        @endsisadmin
                     </div>
                     @sisadmin
                     <form method="POST"
@@ -178,7 +180,7 @@
         </x-card>
     </div>
 
-    {{-- ── Columna central: Evaluaciones ── --}}
+    {{-- Columna central: Evaluaciones --}}
     <div class="col-md-4">
         
         {{-- Asignar Evaluaciones --}}
@@ -214,10 +216,13 @@
                         @endif
                     @endsisadmin
                 </div>
+                <a href="{{ route('evaluacion.evaluacion.show', $evaluacion) }}" class="btn btn-xs btn-warning">
+                    <i class="fas fa-eye"></i>
+                </a>
                 @sisadmin
                 <div class="d-flex flex-column gap-1">
                     <a href="{{ route('evaluacion.evaluacion.edit', $evaluacion) }}"
-                       class="btn btn-xs btn-warning" title="Editar">
+                       class="btn btn-xs btn-info" title="Editar">
                         <i class="fas fa-edit"></i>
                     </a>
                     <form method="POST"
@@ -236,7 +241,7 @@
 
     </div>
 
-    {{-- ── Columna derecha: Evaluadores + relación Evaluador-Evaluación ── --}}
+    {{-- Columna derecha: Evaluadores + relación Evaluador-Evaluación --}}
     <div class="col-md-4">
         {{-- Asignar Evaluadores --}}
         @sisadmin

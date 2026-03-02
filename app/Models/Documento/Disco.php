@@ -35,13 +35,4 @@ class Disco extends Model
 			'id'
 		);
 	}
-
-	function tipoRecursos()
-	{
-		return $this->hasMany(
-			TipoRecurso::class,
-			'Disco_id',
-			'id'
-		);
-	}
 }

@@ -20,15 +20,15 @@ class RolSeeder extends Seeder
             ],
             [
                 'nombre' => 'Evaluador',
-                'descripcion' => 'Persona encargada de realizar evaluaciones y asignar calificaciones.'
+                'descripcion' => 'Persona encargada de liberar evaluaciones a colaboradores'
             ],
             [
                 'nombre' => 'Colaborador', 
-                'descripcion' => 'Usuario que representa a un colaborador de una empresa contratista, con acceso a sus propias evaluaciones.'
+                'descripcion' => 'Usuario que representa a un colaborador de una empresa contratista, con acceso a sus propias evaluaciones que debe de realizar.'
             ],
             [
                 'nombre' => 'Cliente', 
-                'descripcion' => 'Usuario que solicita evaluaciones.'
+                'descripcion' => 'Usuario que solicita evaluaciones a contratistas.'
             ],
             [
                 'nombre' => 'Contratista', 

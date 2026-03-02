@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unsignedInteger('Evaluacion_id');
             $table->string('token');
             $table->timestamp('fecha')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('submitdate')->nullable();
             $table->tinyInteger('bloqueado')->default(0);
         });
     }

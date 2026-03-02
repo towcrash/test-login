@@ -94,6 +94,7 @@ class Usuario_RolSeeder extends Seeder
 				'Usuario_id'     => 4,
                 'Rol_id'         => 5,
 			],
+			/*
 			[
 				'Usuario_id'     => 5,
                 'Rol_id'         => 1,
@@ -114,6 +115,7 @@ class Usuario_RolSeeder extends Seeder
 				'Usuario_id'     => 9,
                 'Rol_id'         => 3,
 			],
+			*/
 		];
 
 		foreach ($registros as $registro) {

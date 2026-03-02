@@ -2,6 +2,7 @@
 
 namespace App\Models\Contratista;
 
+use App\Models\Documento\Documento;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Contratista\Contratista;
@@ -58,6 +59,19 @@ class Colaborador extends Model
 		)
 		->using(Colaborador_Evaluacion::class)
 		->withPivot('token', 'fecha', 'bloqueado')
+		->wherePivot('bloqueado', 0);
+	}
+
+	function documentos()
+	{
+		return $this->belongsToMany(
+			Documento::class,
+			'Colaborador_Documento',
+			'Colaborador_id',
+			'Documento_id'
+		)
+		->using(Colaborador_Documento::class)
+		->withPivot('pAprobacion', 'bloqueado')
 		->wherePivot('bloqueado', 0);
 	}
 

@@ -12,5 +12,6 @@ class Colaborador_Evaluacion extends Pivot
 	protected $table = 'Colaborador_Evaluacion';
 	protected $casts = [
 		'fecha' => 'datetime',
+		'submitdate' => 'datetime'
 	];
 }

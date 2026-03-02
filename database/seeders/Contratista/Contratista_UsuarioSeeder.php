@@ -12,19 +12,19 @@ class Contratista_UsuarioSeeder extends Seeder
 		$registros = [
 			[
 				'Contratista_id' => 1,
-				'Usuario_id'     => 2,
+				'Usuario_id'     => 1,
 			],
 			[
 				'Contratista_id' => 1,
-				'Usuario_id'     => 3,
+				'Usuario_id'     => 2,
 			],
 			[
 				'Contratista_id' => 2,
-				'Usuario_id'     => 4,
+				'Usuario_id'     => 3,
 			],
 			[
 				'Contratista_id' => 3,
-				'Usuario_id'     => 5,
+				'Usuario_id'     => 4,
 			],
 		];
 

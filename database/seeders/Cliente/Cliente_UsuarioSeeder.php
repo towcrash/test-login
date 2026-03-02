@@ -15,27 +15,18 @@ class Cliente_UsuarioSeeder extends Seeder
 			[
 				'Cliente_id' => 1,
 				'Usuario_id' => 1,
-				'fecha'      => now(),
 			],
 			[
 				'Cliente_id' => 1,
 				'Usuario_id' => 2,
-				'fecha'      => now(),
 			],
 			[
-				'Cliente_id' => 2,
+				'Cliente_id' => 1,
 				'Usuario_id' => 3,
-				'fecha'      => now(),
 			],
 			[
-				'Cliente_id' => 3,
+				'Cliente_id' => 1,
 				'Usuario_id' => 4,
-				'fecha'      => now(),
-			],
-			[
-				'Cliente_id' => 4,
-				'Usuario_id' => 5,
-				'fecha'      => now(),
 			],
 		];
 

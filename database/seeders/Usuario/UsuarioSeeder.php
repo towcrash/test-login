@@ -38,6 +38,7 @@ class UsuarioSeeder extends Seeder
 				'nombre'    => 'Fernando Vega',
 				'email'     => 'fernando.vega@EngineeringPR.cl',
 			],
+			/*
 			[
 				'user'		=> 'TAdmin',
 				'password'	=> 'password123',
@@ -89,6 +90,7 @@ class UsuarioSeeder extends Seeder
 				'email'     => 'bloq@EngineeringPR.cl',
 				'bloqueado'  => 1,
 			],
+			*/
 		];
 
 		foreach ($usuarios as $usuario) {
